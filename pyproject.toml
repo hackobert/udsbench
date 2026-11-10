@@ -1,0 +1,90 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "udsbench"
+version = "0.1.0"
+description = "Generische, plattformunabhängige UDS-/CAN-Diagnose- und Testplattform (lokaler Webserver + Browser-UI)"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "AI_DISCLOSURE.md"]
+requires-python = ">=3.11"
+authors = [{ name = "The udsbench authors" }]
+keywords = ["uds", "iso-14229", "iso-15765", "isotp", "can", "can-fd", "diagnostics", "ecu", "testing", "automotive"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Manufacturing",
+  "Natural Language :: German",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
+  "Framework :: FastAPI",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "pydantic>=2.6",
+  "PyYAML>=6.0",
+  "python-can>=4.3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-asyncio>=0.23",
+  "httpx>=0.27",
+  "ruff>=0.4",
+  "mypy>=1.9",
+  "types-PyYAML",
+]
+build = ["pyinstaller>=6"]
+
+[project.scripts]
+udsbench = "udsbench.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend/udsbench"]
+# gebautes Frontend (git-ignoriert) trotzdem ins Wheel aufnehmen
+artifacts = ["backend/udsbench/static/**"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"config/packages" = "udsbench/_bundled/packages"
+"config/app.example.yaml" = "udsbench/_bundled/app.example.yaml"
+
+[tool.hatch.build.targets.sdist]
+include = ["backend/udsbench", "config", "README.md", "LICENSE", "THIRD_PARTY_NOTICES.md", "AI_DISCLOSURE.md", "CHANGELOG.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+pythonpath = ["backend"]
+markers = [
+  "conformance: ISO 14229 / ISO 15765-2 Konformitätstests",
+  "integration: Integrationstests gegen das simulierte ECU-Testdouble",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["backend"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["RUF007", "RUF059", "E501", "B008", "RUF012", "SIM105", "SIM102", "SIM103", "SIM108", "SIM114", "SIM116", "RUF001", "RUF002", "RUF003", "B904", "RUF006", "RUF022"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "backend"
+packages = ["udsbench"]
+ignore_missing_imports = true
+warn_unused_ignores = false
+check_untyped_defs = true

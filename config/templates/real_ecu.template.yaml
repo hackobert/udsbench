@@ -1,0 +1,73 @@
+# Vorlage für die Anbindung eines realen Steuergeräts.
+# Kopieren nach config/packages/<name>.yaml (git-ignoriert!) und alle Platzhalter ersetzen.
+# Hersteller-/projektspezifische Werte gehören ausschließlich in diese lokale Datei.
+schema_version: 1
+package:
+  id: project_x                 # neutrale, eindeutige Paket-ID
+  name: Projekt X
+  version: 0.1.0
+  description: Lokale Anbindung (nicht einchecken)
+
+isotp_profiles:
+  target_profile:
+    channel: default
+    tx_id: 0x000                # TODO: Request-ID (physikalisch)
+    rx_id: 0x000                # TODO: Response-ID
+    functional_id: null         # TODO: funktionale ID (optional)
+    extended_id: false          # 29-Bit-IDs?
+    addressing: normal          # normal | extended | mixed
+    # tx_address_extension: 0x00  # nur extended/mixed: Byte 0 (N_TA / N_AE)
+    # rx_address_extension: 0x00
+    padding: {enabled: true, byte: 0xFF}   # viele ECUs erwarten voll aufgefüllte Frames
+    dlc_mode: fixed
+    block_size: 0
+    st_min: 0x00
+    timeouts: {n_as: 1000, n_ar: 1000, n_bs: 1000, n_cr: 1000}
+
+security_providers:
+  # Variante A: eigene Shared Library (liegt lokal in config/providers/, git-ignoriert)
+  - id: provider_a
+    type: native
+    params:
+      library: libprovider_a.so         # .dll / .so / .dylib
+      calling_convention: cdecl         # stdcall nur unter Windows
+      function: ComputeKey              # TODO: exportierter Funktionsname
+      return: {type: int, success: 0}
+      key_buffer_size: 64
+      args: [seed_ptr, {seed_len: uint32}, {level: uint32}, key_ptr, {key_buffer_size: uint32}, key_len_ptr]
+      # init: [{function: Init, args: [{const_str: "provider.cfg", path: true}], success: 0}]
+      # Zugangsdaten nur per Umgebung: {const_str: "${ENV:PROVIDER_A_SECRET}"}
+  # Variante B: externes Programm
+  - id: provider_b
+    type: script
+    params:
+      command: ["{python}", "config/providers/keygen_script.py", "{level}"]
+      mode: stdio
+      timeout_s: 10
+
+ecus:
+  - id: target
+    name: Ziel-ECU
+    isotp: target_profile
+    timing: {p2_ms: 50, p2_star_ms: 5000, margin_ms: 100, max_response_pending: 50}
+    tester_present: {enabled: true, interval_ms: 2000, suppress_response: true, addressing: physical}
+    sessions:
+      - {id: 0x01, name: defaultSession}
+      - {id: 0x02, name: programmingSession}
+      - {id: 0x03, name: extendedDiagnosticSession}
+      # - {id: 0x40, name: vendorSession}   # herstellerspezifische Session
+    security_levels:
+      - {level: 0x01, name: Level 1, provider: provider_a, session: 0x03}
+    # security_nrc_cases:                    # Abweichungen realer ECUs dokumentiert konfigurieren
+    #   - {id: conditions_not_correct, name: "Default-Session", expected_nrc: 0x22}
+    #   - {id: out_of_range, name: "…", enabled: false}
+
+catalogs:
+  dids: []      # {id: 0x0000, name: ..., type: uint|int|ascii|bcd|enum|bitfield|float32|hex, length: n, scale: 1, unit: ""}
+  dtcs: []      # {code: 0x000000, name: ..., description: ...}
+  routines: []  # {id: 0x0000, name: ..., start_params: [...], result_fields: [...]}
+
+messages: []
+sequences: []
+tests: []
+testsuites: []

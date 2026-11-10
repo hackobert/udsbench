@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+/build/
+/dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Frontend
+node_modules/
+frontend/dist/
+backend/udsbench/static/
+
+# Lokale Konfiguration / Laufzeitdaten
+config/app.yaml
+config/local/
+config/packages/*.yaml
+!config/packages/*.example.yaml
+config/providers/*
+!config/providers/*.example.*
+!config/providers/README.md
+/data/
+/logs/
+/recordings/
+/reports/
+*.log
+*.jsonl
+
+# Secrets / native Bibliotheken
+.env
+*.env
+secrets/
+*.dll
+*.so
+*.dylib
+*.pem
+*.key
+
+# PyInstaller
+*.spec.bak
+config/plugins/*
+!config/plugins/*.example.py

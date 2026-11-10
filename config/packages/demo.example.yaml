@@ -1,0 +1,323 @@
+# Neutrales Demo-/Beispielpaket für den Betrieb ohne Hardware (virtueller Bus + ECU-Testdouble).
+# Alle IDs, Namen und Werte sind frei gewählte Platzhalter ohne Bezug zu realen Steuergeräten.
+schema_version: 1
+package:
+  id: demo
+  name: Demo-Paket (virtuell)
+  version: 1.0.0
+  description: Zwei simulierte ECUs, Kataloge, Botschaften, Sequenzen und Testsuiten zum Ausprobieren.
+  author: udsbench
+
+isotp_profiles:
+  ecu_a_normal:
+    description: Normale Adressierung, 11-Bit, Padding 0xCC auf 8 Byte
+    channel: default
+    tx_id: 0x700
+    rx_id: 0x708
+    functional_id: 0x7FF
+    addressing: normal
+    padding: {enabled: true, byte: 0xCC}
+    dlc_mode: fixed
+    block_size: 8
+    st_min: 0x00
+  ecu_b_extended:
+    description: Extended Adressierung (Byte 0 = Zieladresse, PCI in Byte 1), Padding 0xFF
+    channel: default
+    tx_id: 0x6F0
+    rx_id: 0x6F8
+    functional_id: 0x6FF
+    addressing: extended
+    tx_address_extension: 0x2B
+    rx_address_extension: 0xF1
+    functional_address_extension: 0xFE
+    padding: {enabled: true, byte: 0xFF}
+    dlc_mode: fixed
+    st_min: 0xF5   # 500 µs
+  ecu_c_minimal:
+    description: Normale Adressierung ohne Padding (minimale DLC)
+    channel: default
+    tx_id: 0x710
+    rx_id: 0x718
+    functional_id: 0x7FF
+    padding: {enabled: false}
+    dlc_mode: minimal
+
+security_providers:
+  - id: demo_toy
+    type: demo
+    description: Spielzeug-Algorithmus (nur Demo, kein reales Verfahren)
+    params: {mask: "5A A5"}
+
+ecus:
+  - id: ecu_a
+    name: ECU A (Demo)
+    isotp: ecu_a_normal
+    functional_group: demo_bus
+    security_levels:
+      - {level: 0x01, name: Level 1, provider: demo_toy, session: 0x03}
+      - {level: 0x03, name: Level 2, provider: demo_toy, params: {mask: "11 22 33"}, session: 0x02}
+  - id: ecu_b
+    name: ECU B (Demo, extended)
+    isotp: ecu_b_extended
+    functional_group: demo_ext
+    security_levels:
+      - {level: 0x01, name: Level 1, provider: demo_toy, session: 0x03}
+  - id: ecu_c
+    name: ECU C (Demo, ohne Padding)
+    isotp: ecu_c_minimal
+    functional_group: demo_bus
+
+catalogs:
+  dids:
+    - {id: 0xF100, name: demo_identifier, type: ascii, length: 17, description: Demo-Identifikationstext}
+    - {id: 0xF101, name: software_version, type: ascii, length: 8}
+    - {id: 0xF110, name: serial_number, type: bcd, length: 4}
+    - {id: 0x0100, name: supply_voltage, type: uint, length: 2, scale: 0.001, unit: V}
+    - {id: 0x0101, name: temperature, type: int, length: 1, offset: -40, unit: "°C"}
+    - {id: 0x0102, name: operating_mode, type: enum, length: 1, enum: {0: "off", 1: standby, 2: active, 3: fault}, access: readwrite}
+    - {id: 0x0103, name: config_flags, type: bitfield, length: 1, access: readwrite,
+       bits: [{name: feature_x, bit: 0}, {name: feature_y, bit: 1}, {name: level, bit: 4, length: 2}]}
+    - {id: 0x0200, name: user_setting, type: uint, length: 2, access: readwrite, min: 0, max: 1000}
+    - {id: 0x0300, name: output_channel_1, type: uint, length: 1, io_control: true, unit: "%"}
+  dtcs:
+    - {code: 0x012345, name: demo_sensor_open, description: Demo-Sensor Leitungsunterbrechung}
+    - {code: 0x0A0B0C, name: demo_voltage_low, description: Demo-Versorgungsspannung zu niedrig}
+    - {code: 0xC10000, name: demo_comm_lost, description: Demo-Kommunikationsverlust}
+  routines:
+    - id: 0xFF00
+      name: demo_erase_memory
+      description: Demo-Speicher löschen
+      start_params: [{name: area, type: uint, length: 1}]
+      result_fields: [{name: status, type: enum, length: 1, enum: {0: ok, 1: busy, 2: error}}]
+    - id: 0x0201
+      name: demo_self_test
+      result_fields: [{name: result, type: enum, length: 1, enum: {0: passed, 1: failed}}, {name: duration_ms, type: uint, length: 2}]
+
+messages:
+  - {id: read_identifier, name: Identifikation lesen, ecu: ecu_a, payload: "22 F1 00", expect: {positive: true}}
+  - {id: read_voltage, name: Versorgungsspannung lesen, ecu: ecu_a, payload: "22 01 00"}
+  - {id: extended_session, name: Extended Session, ecu: ecu_a, payload: "10 03", expect: {positive: true}}
+  - {id: default_session, name: Default Session, ecu: ecu_a, payload: "10 01"}
+  - {id: tester_present_func, name: TesterPresent funktional (SPRM), ecu: ecu_a, payload: "3E 80", functional: true}
+  - {id: read_did_param, name: DID lesen (parametriert), ecu: ecu_a, payload: "22 ${u16(did)}", vars: {did: 0xF101}}
+  - {id: read_dtcs, name: Fehlerspeicher lesen (alle), ecu: ecu_a, payload: "19 02 FF"}
+  - {id: functional_read, name: Funktionale DID-Abfrage, ecu: ecu_a, payload: "22 F1 01", functional: true}
+
+sequences:
+  - id: unlock_and_write
+    name: Session → SecurityAccess → Write
+    ecu: ecu_a
+    vars: {value: 321}
+    steps:
+      - {session: 0x03}
+      - {request_seed: 0x01, save: {my_seed: "data[1:]"}}
+      - {compute_key: {level: 0x01, seed: my_seed}}
+      - {send: {payload: "27 02 ${key}"}, expect: {positive: true}}
+      - {write_did: {did: user_setting, value: "${value}"}}
+      - {read_did: user_setting, expect: {positive: true, expr: "values['user_setting'] == value"}}
+      - {log: "Geschrieben: ${value}"}
+  - id: read_all_ids
+    name: Alle Identifikationen lesen
+    ecu: ecu_a
+    steps:
+      - {read_did: [demo_identifier, software_version, serial_number]}
+      - {read_did: supply_voltage, save: {voltage: "be(data[2:4])"}}
+      - if:
+          condition: "voltage > 11000"
+          then: [{log: "Spannung OK (${voltage} mV)"}]
+          else: [{log: "Spannung niedrig"}]
+  - id: download_block
+    name: Download (Flash-Ablauf, generisch)
+    ecu: ecu_a
+    steps:
+      - {session: 0x02}
+      - {unlock: 0x03}
+      - {transfer: {direction: download, address: 0x1000, data: "=repeat(bytes('A5 5A'), 300)"}}
+      - {send: {payload: "23 22 10 00 00 04"}, expect: {response: "63 A5 5A A5 5A"}}
+
+tests:
+  - id: read_identification
+    name: Identifikation lesbar
+    ecu: ecu_a
+    tags: [smoke]
+    steps:
+      - {send: {message: read_identifier}, expect: {positive: true, response_prefix: "62 F1 00", length: 20, max_time_ms: 500}}
+  - id: session_handling
+    name: Session-Wechsel und P2-Übernahme
+    ecu: ecu_a
+    tags: [smoke, session]
+    steps:
+      - {session: 0x03, expect: {positive: true, fields: {fields.session: 3, fields.p2_server_max_ms: 50}}}
+      - {send: {payload: "3E 00"}, expect: {response: "7E 00"}}
+      - {send: {payload: "3E 80"}, expect: {no_response: true}}
+      - {session: 0x01}
+  - id: invalid_session
+    name: Nicht unterstützte Session → NRC 0x12
+    ecu: ecu_a
+    tags: [smoke, nrc]
+    steps:
+      - {send: {payload: "10 04"}, expect: {nrc: subFunctionNotSupported}}
+  - id: write_requires_unlock
+    name: Schreiben ohne Unlock → NRC 0x33
+    ecu: ecu_a
+    tags: [security]
+    steps:
+      - {session: 0x03}
+      - {write_did: {did: user_setting, value: 5}, expect: {nrc: 0x33}}
+    teardown:
+      - {session: 0x01, expect: {}}
+  - id: unlock_write_sequence
+    name: Session → SecurityAccess → Write (Sequenz)
+    ecu: ecu_a
+    tags: [security]
+    datasets: [{value: 1}, {value: 500}, {value: 1000}]
+    steps:
+      - {sequence: {id: unlock_and_write}}
+    teardown:
+      - {session: 0x01, expect: {}}
+  - id: dtc_read_clear
+    name: Fehlerspeicher lesen und löschen
+    ecu: ecu_a
+    tags: [dtc]
+    steps:
+      - {read_dtc: {subfunction: 0x01, mask: 0x09}, expect: {positive: true, expr: "dtc_count >= 1"}}
+      - {read_dtc: {subfunction: 0x02, mask: 0xFF}, expect: {positive: true, expr: "len(dtcs) == 3"}}
+      - {clear_dtc: 0xFFFFFF}
+      - {read_dtc: {subfunction: 0x02, mask: 0x09}, expect: {positive: true, expr: "len(dtcs) == 0"}}
+  - id: routine_pending
+    name: Routine mit ResponsePending (0x78)
+    ecu: ecu_a
+    tags: [routine, timing]
+    steps:
+      - {session: 0x03}
+      - {routine: {id: demo_self_test, action: start}, expect: {positive: true, pending_max: 5, fields: {fields.results.result: passed}}}
+      - {routine: {id: demo_self_test, action: results}}
+      - {session: 0x01}
+  - id: functional_request
+    name: Funktionale Anfrage – Antworten beider ECUs
+    ecu: ecu_a
+    tags: [functional]
+    steps:
+      - {send: {message: functional_read}, expect: {responses_min: 2}}
+  - id: extended_addressing
+    name: ECU B mit extended Adressierung
+    ecu: ecu_b
+    tags: [smoke, addressing]
+    steps:
+      - {read_did: demo_identifier, expect: {positive: true}}
+      - {session: 0x03}
+      - {unlock: 0x01}
+      - {session: 0x01}
+  - id: download_flow
+    name: Download-Workflow (0x34-0x37)
+    ecu: ecu_a
+    tags: [transfer]
+    steps:
+      - {sequence: download_block}
+    teardown:
+      - {reset: 0x01, expect: {}}
+
+testsuites:
+  - id: smoke
+    name: Smoke-Test
+    tags: [smoke]
+  - id: full
+    name: Komplette Demo-Suite
+    ecu: ecu_a
+    tests: [read_identification, session_handling, invalid_session, write_requires_unlock, unlock_write_sequence,
+            dtc_read_clear, routine_pending, functional_request, extended_addressing, download_flow]
+    teardown:
+      - {session: 0x01, expect: {}}
+
+simulation:
+  ecus:
+    - ecu: ecu_a
+      sessions: [0x01, 0x02, 0x03]
+      p2_server_max_ms: 50
+      p2_star_server_max_ms: 2000
+      dids:
+        - {id: 0xF100, value: "44454D4F2D4543552D412D303030303031"}   # "DEMO-ECU-A-000001"
+        - {id: 0xF101, value: "312E302E302D6465"}                     # "1.0.0-de"
+        - {id: 0xF110, value: "12345678"}
+        - {id: 0x0100, value: "3138"}                                 # 12.600 V
+        - {id: 0x0101, value: "41"}                                   # 25 °C
+        - {id: 0x0102, value: "01", writable: true, sessions: [0x01, 0x03]}
+        - {id: 0x0103, value: "11", writable: true}
+        - {id: 0x0200, value: "0000", writable: true, security_level: 0x01}
+        - {id: 0x0300, value: "00", writable: true}
+      dtcs:
+        - {code: 0x012345, status: 0x09, snapshot: "01 02 0A 0B", extended: "01 05"}
+        - {code: 0x0A0B0C, status: 0x24}
+        - {code: 0xC10000, status: 0x2F}
+      routines:
+        - {id: 0xFF00, result: "00", security_level: 0x01}
+        - {id: 0x0201, result: "00 01 2C", pending: 2, sessions: [0x03]}
+      security:
+        - {level: 0x01, seed_length: 4, provider: demo_toy, max_attempts: 3, lockout_ms: 3000}
+        - {level: 0x03, seed_length: 4, provider: demo_toy, params: {mask: "11 22 33"}, sessions: [0x02]}
+    - ecu: ecu_b
+      sessions: [0x01, 0x03]
+      dids:
+        - {id: 0xF100, value: "44454D4F2D4543552D422D303030303032"}   # "DEMO-ECU-B-000002"
+        - {id: 0xF101, value: "322E312E302D6465"}
+      security:
+        - {level: 0x01, seed_length: 2, provider: demo_toy}
+    - ecu: ecu_c
+      sessions: [0x01, 0x03]
+      response_delay_ms: 5
+      dids:
+        - {id: 0xF100, value: "44454D4F2D4543552D432D303030303033"}   # "DEMO-ECU-C-000003"
+        - {id: 0xF101, value: "302E392E312D6465"}
+
+dashboards:
+  - id: demo_bench
+    name: Demo-Prüfstand
+    description: Beispiel-Dashboard mit eigenen Knöpfen, Werten, Timechart und Ereignissen
+    panels:
+      - id: actions
+        type: buttons
+        title: Aktionen ECU A
+        x: 0
+        y: 0
+        w: 4
+        h: 4
+        buttons:
+          - {label: Identifikation lesen, action: {type: message, ref: read_identifier}, color: primary}
+          - {label: Extended Session, action: {type: session, ref: extendedDiagnosticSession, ecu: ecu_a}}
+          - {label: Unlock Level 1, action: {type: unlock, ref: 1, ecu: ecu_a}, color: warning}
+          - {label: Fehlerspeicher lesen, action: {type: message, ref: read_dtcs}}
+          - {label: Fehlerspeicher löschen, action: {type: step, ecu: ecu_a, step: {clear_dtc: 0xFFFFFF}, confirm: true}, color: danger}
+          - {label: Smoke-Suite, action: {type: suite, ref: smoke}, color: success}
+          - {label: Markierung, action: {type: marker, ref: "Manuelle Markierung"}}
+          - {label: Report letzte 15 min, action: {type: report, report: {title: Demo-Report, from: "-15m"}}}
+      - id: values
+        type: values
+        title: Messwerte
+        x: 4
+        y: 0
+        w: 4
+        h: 4
+        config: {ecu: ecu_a, dids: [supply_voltage, temperature, operating_mode], refresh_ms: 2000}
+      - id: status
+        type: ecu_status
+        title: ECUs
+        x: 8
+        y: 0
+        w: 4
+        h: 4
+      - id: chart
+        type: timechart
+        title: UDS-Antworten nach Typ
+        x: 0
+        y: 4
+        w: 8
+        h: 4
+        config: {metric: uds, group_by: type, window_s: 300}
+      - id: events
+        type: events
+        title: Ereignisse
+        x: 8
+        y: 4
+        w: 4
+        h: 4
+        config: {limit: 40}

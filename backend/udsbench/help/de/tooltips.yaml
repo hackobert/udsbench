@@ -1,0 +1,91 @@
+# Kurzerklärungen für Felder und Bedienelemente (Schlüssel = "<ansicht>.<feld>").
+# "topic" verweist auf ein Hilfethema, optional mit Abschnitt ("thema#abschnitt").
+connection.backend: {text: "Virtueller Bus ohne Hardware oder reale Adapter über python-can.", topic: "verbindung#backend"}
+connection.name: {text: "Name der Verbindung. ISO-TP-Profile verweisen über 'channel' darauf.", topic: "verbindung#kanalname"}
+connection.bus: {text: "Alle Teilnehmer mit demselben Bus-Namen sehen sich gegenseitig.", topic: "verbindung#backend"}
+connection.interface: {text: "Treibername laut python-can, z. B. socketcan.", topic: "verbindung#backend"}
+connection.channel: {text: "Kanal oder Gerät des Treibers, z. B. can0.", topic: "verbindung#backend"}
+connection.bitrate: {text: "Nominal-Bitrate in Bit/s, muss zum Bus passen (häufig 250000 oder 500000).", topic: "verbindung#backend"}
+connection.fd: {text: "CAN-FD mit bis zu 64 Datenbytes je Frame.", topic: "verbindung#backend"}
+connection.data_bitrate: {text: "Bitrate der Datenphase bei CAN-FD.", topic: "verbindung#backend"}
+connection.simulate: {text: "Startet simulierte Steuergeräte aus den aktiven Paketen auf diesem virtuellen Bus.", topic: "simulation"}
+connection.reset: {text: "Schließt und öffnet den Adapter neu, z. B. nach Bus-Off.", topic: "verbindung#status"}
+connection.tester_present: {text: "Hält Nicht-Default-Sessions mit 0x3E am Leben (S3).", topic: "pakete-konfiguration#laufzeit"}
+trace.view: {text: "Frames: jeder CAN-Frame. Nachrichten: zusammengesetzte ISO-TP-Nachrichten.", topic: "trace#sichten"}
+trace.ids: {text: "Eine oder mehrere CAN-IDs, durch Leerzeichen getrennt (z. B. 0x700 0x708).", topic: "trace#filter"}
+trace.data_contains: {text: "Zeigt nur Frames, deren Daten diese Bytefolge enthalten.", topic: "trace#filter"}
+trace.services: {text: "Nur Frames dieses UDS-Dienstes (SID), Anfragen und Antworten.", topic: "trace#filter"}
+trace.only_uds: {text: "Blendet Frames ohne UDS-Bezug aus.", topic: "trace#filter"}
+trace.pause: {text: "Hält die Anzeige an; im Hintergrund wird weiter gepuffert. Leertaste.", topic: "trace#pause"}
+trace.dropped: {text: "So viele Frames hat die Anzeige bei Überlast übersprungen; im Puffer sind sie enthalten.", topic: "trace#pause"}
+trace.export: {text: "Speichert den Trace-Puffer als CSV, ASC, candump-Log oder JSONL.", topic: "trace#pause"}
+uds.service: {text: "UDS-Dienst nach ISO 14229-1.", topic: "uds-senden#dienst"}
+uds.subfunction: {text: "Subfunktion des Dienstes (zweites Byte).", topic: "uds-senden#dienst"}
+uds.sprm: {text: "Unterdrückt die positive Antwort (Bit 7). Negative Antworten kommen trotzdem.", topic: "uds-senden#dienst"}
+uds.payload: {text: "UDS-Nutzlast als Hex. Leerzeichen, Kommas und 0x sind erlaubt.", topic: "uds-senden#parameter"}
+uds.ecu: {text: "Ziel-ECU aus dem aktiven Paket; bestimmt CAN-IDs und ISO-TP-Profil.", topic: "uds-senden#funktional"}
+uds.functional: {text: "Funktional an alle ECUs der Gruppe; nur Single Frames.", topic: "uds-senden#funktional"}
+uds.validate: {text: "strict blockiert normwidrige Anfragen, warn zeigt nur Hinweise, off prüft nicht.", topic: "uds-senden#validierung"}
+uds.timeout: {text: "Eigene Wartezeit auf die Antwort in ms; leer = P2 der ECU plus Zuschlag.", topic: "pakete-konfiguration#laufzeit"}
+uds.preview_payload: {text: "Die Bytes des Dienstes, wie sie die ECU interpretiert.", topic: "uds-senden#vorschau"}
+uds.preview_frames: {text: "Die tatsächlichen CAN-Frames mit Adressbyte, PCI/Länge und Padding.", topic: "adressierung-padding#pci"}
+uds.raw: {text: "Sendet Bytes exakt wie eingegeben, ohne ISO-TP. Nur für Spezialfälle.", topic: "uds-senden#raw"}
+uds.response_time: {text: "Gemessen ab Ende der Übertragung bis zur endgültigen Antwort.", topic: "uds-senden#antwort"}
+uds.pending: {text: "Anzahl der Zwischenantworten 0x78 (ResponsePending).", topic: "uds-senden#antwort"}
+isotp.tx_id: {text: "CAN-ID, auf der der Tester an die ECU sendet.", topic: "isotp-profile#felder"}
+isotp.rx_id: {text: "CAN-ID, auf der die ECU antwortet.", topic: "isotp-profile#felder"}
+isotp.functional_id: {text: "CAN-ID für funktionale Anfragen an mehrere ECUs.", topic: "isotp-profile#felder"}
+isotp.extended_id: {text: "29-Bit-Identifier statt 11 Bit.", topic: "isotp-profile#felder"}
+isotp.addressing: {text: "normal: PCI in Byte 0. extended/mixed: Byte 0 = Adressbyte, PCI in Byte 1.", topic: "adressierung-padding#pci"}
+isotp.tx_address_extension: {text: "Byte 0 gesendeter Frames bei extended/mixed Adressierung.", topic: "adressierung-padding#pci"}
+isotp.rx_address_extension: {text: "Erwartetes Byte 0 empfangener Frames; leer = nicht prüfen.", topic: "adressierung-padding#pci"}
+isotp.block_size: {text: "Frames je Block im eigenen Flow Control; 0 = alle am Stück.", topic: "adressierung-padding#bs-stmin"}
+isotp.st_min: {text: "Mindestabstand zwischen Frames: 00-7F = ms, F1-F9 = 100-900 µs.", topic: "adressierung-padding#bs-stmin"}
+isotp.padding: {text: "Frames mit dem Padding-Byte auffüllen.", topic: "adressierung-padding#padding"}
+isotp.padding_byte: {text: "Füllwert, z. B. 00, AA, CC oder FF – so, wie die ECU es erwartet.", topic: "adressierung-padding#padding"}
+isotp.dlc_mode: {text: "fest: immer volle Framelänge. minimal: nur nötige Bytes.", topic: "adressierung-padding#padding"}
+isotp.can_fd: {text: "Frames bis 64 Byte; TX_DL legt die maximale Framelänge fest.", topic: "adressierung-padding#padding"}
+isotp.timeouts: {text: "N_As/N_Ar Senden, N_Bs Warten auf Flow Control, N_Cr Warten auf Folgeframe.", topic: "adressierung-padding#timeouts"}
+dids.catalog: {text: "DID-Beschreibungen aus den aktiven Paketen: Typ, Länge, Skalierung, Einheit.", topic: "dids#katalog"}
+dids.write_value: {text: "Eingabe passend zum Typ; Grenzen werden vor dem Senden geprüft.", topic: "dids#schreiben"}
+dids.io_parameter: {text: "00 zurückgeben, 01 Standard, 02 einfrieren, 03 vorübergehend setzen.", topic: "dids#io"}
+dtcs.subfunction: {text: "Art der Abfrage, z. B. 02 = DTCs nach Statusmaske.", topic: "fehlerspeicher#lesen"}
+dtcs.mask: {text: "Filtert nach Statusbits: FF alles, 08 bestätigt, 04 anstehend.", topic: "fehlerspeicher#statusbits"}
+dtcs.clear_group: {text: "FFFFFF löscht alle DTCs, eine konkrete Nummer nur diesen.", topic: "fehlerspeicher#loeschen"}
+routines.action: {text: "Start (01), Stop (02) oder Ergebnis abfragen (03).", topic: "routinen-transfer#routinen"}
+transfer.alfid: {text: "Byte-Längen von Adresse und Größe; 44 = je 4 Byte.", topic: "routinen-transfer#transfer"}
+transfer.block_length: {text: "Überschreibt die maximale Blocklänge aus der ECU-Antwort.", topic: "routinen-transfer#transfer"}
+messages.payload: {text: "Hex-Nutzlast; ${…} wird beim Senden ausgewertet, z. B. ${u16(did)}.", topic: "botschaften-sequenzen#botschaften"}
+messages.to_dashboard: {text: "Legt einen Knopf für diese Botschaft auf ein Dashboard.", topic: "dashboards#knoepfe"}
+sequences.editor: {text: "Schritte als JSON; jeder Schritt hat genau eine Aktion.", topic: "botschaften-sequenzen#sequenzen"}
+tests.expect: {text: "Prüfungen eines Schritts: positive, nrc, response, max_time_ms …", topic: "tests#assertions"}
+tests.datasets: {text: "Jeder Datensatz ergibt einen eigenen Durchlauf mit diesen Variablen.", topic: "tests#aufbau"}
+tests.export: {text: "JSON, JUnit-XML, HTML oder ZIP mit Traces und Logs.", topic: "reports#testlauf"}
+security.level: {text: "Ungerade Subfunktion für den Seed (01, 03 …); der Key geht an Level+1.", topic: "security#ablauf"}
+security.provider: {text: "Berechnet den Key aus dem Seed; aus der Konfiguration, ohne festes Verfahren im Programm.", topic: "security#provider"}
+security.unlock: {text: "Seed anfordern, Key berechnen und senden in einem Schritt.", topic: "security#modi"}
+security.nrc_suite: {text: "Provoziert gezielt Ablehnungen und vergleicht erwartete mit tatsächlichen NRCs.", topic: "security#nrc-suite"}
+recordings.mode: {text: "Bus: Tx-Frames erneut senden. Trace: nur anzeigen, nichts senden.", topic: "aufzeichnungen#replay"}
+recordings.speed: {text: "Skaliert die Zeitabstände; 2 = doppelt so schnell.", topic: "aufzeichnungen#replay"}
+reports.range: {text: "Zeitraum des Reports; Schnellwahl für die letzten Minuten.", topic: "reports#zeitbereich"}
+reports.include: {text: "Welche Inhalte in den Report und als Anhang aufgenommen werden.", topic: "reports#zeitbereich"}
+reports.trace_formats: {text: "Formate der angehängten CAN-Traces.", topic: "aufzeichnungen#formate"}
+timechart.metric: {text: "UDS-Anfragen, CAN-Frames oder Ereignisse zählen.", topic: "timechart#messgroesse"}
+timechart.group_by: {text: "Wonach die Balken eingefärbt werden: Typ, Service, ECU, NRC …", topic: "timechart#messgroesse"}
+timechart.marker: {text: "Hält einen Zeitpunkt in der Ereignis-Spur fest.", topic: "timechart#ereignisse"}
+dashboards.edit: {text: "Panels hinzufügen, verschieben, Größe ändern, Knöpfe bearbeiten.", topic: "dashboards#layout"}
+dashboards.button_action: {text: "Was der Knopf auslöst: Botschaft, Sequenz, Test, UDS-Anfrage, Unlock …", topic: "dashboards#knoepfe"}
+dashboards.confirm: {text: "Fragt vor dem Auslösen nach – sinnvoll für Löschen oder Reset.", topic: "dashboards#knoepfe"}
+packages.upload: {text: "YAML- oder JSON-Paket hochladen; es wird vollständig geprüft.", topic: "pakete-konfiguration#hochladen"}
+packages.active: {text: "Aktive Pakete liefern ECUs, Kataloge, Botschaften und Tests.", topic: "pakete-konfiguration#aktivieren"}
+config.timing: {text: "P2/P2*, Zuschlag und Grenze für 0x78-Zwischenantworten.", topic: "pakete-konfiguration#laufzeit"}
+config.mask_secrets: {text: "Seeds, Keys und Zugangsdaten in Logs verbergen.", topic: "pakete-konfiguration#laufzeit"}
+logs.channel: {text: "app, comm (Kommunikation), audit (Sicherheit), test.", topic: "logs-konsole-api#logs"}
+logs.cid: {text: "Korrelations-ID: zeigt alle Einträge einer Anfrage oder eines Testlaufs.", topic: "logs-konsole-api#logs"}
+console.input: {text: "API-Aufruf wie 'GET /info' oder Kurzform wie 'uds ecu_a 22 F1 00'.", topic: "logs-konsole-api#konsole"}
+packages.ai_prompt: {text: "Erzeugt einen Prompt, mit dem eine KI aus einer Spezifikation ein importierbares Paket erstellt.", topic: "ki-konfiguration#ablauf"}
+packages.ai_sections: {text: "Welche Teile die KI aus der Spezifikation übernehmen soll.", topic: "ki-konfiguration#inhalt"}
+packages.ai_notes: {text: "Zusätzliche Vorgaben an die KI, z. B. welche Kapitel oder welcher Bus gilt.", topic: "ki-konfiguration#ablauf"}
+packages.ai_answer: {text: "Komplette Antwort der KI einfügen; der YAML-Block wird automatisch erkannt.", topic: "ki-konfiguration#ablauf"}
+packages.ai_fix: {text: "Kopiert das Paket samt Fehlermeldungen als Auftrag zur Korrektur an die KI.", topic: "ki-konfiguration#ablauf"}
+packages.ai_todos: {text: "Stellen, die die KI als unklar oder fehlend markiert hat. Vor dem Einsatz klären.", topic: "ki-konfiguration#pruefen"}

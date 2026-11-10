@@ -1,0 +1,25 @@
+{
+  "name": "udsbench-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Browser-UI für udsbench (reiner REST-/WebSocket-Client)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "eslint": "10.13.0",
+    "jsdom": "30.1.3",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "vite": "8.3.4",
+    "vitest": "4.1.12"
+  }
+}

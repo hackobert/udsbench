@@ -1,0 +1,18 @@
+# Beispiel-Job: udsbench-Suite in einer CI-Pipeline (gegen das ECU-Testdouble) ausführen
+jobs:
+  hil-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install .
+      - name: Server starten
+        run: |
+          udsbench run --demo --no-browser --port 8765 &
+          for i in $(seq 1 50); do curl -fs http://127.0.0.1:8765/api/health && break; sleep 0.2; done
+      - name: Suite ausführen
+        run: python examples/run_suite.py --suite full --junit udsbench-report.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: {name: udsbench-report, path: udsbench-report.xml}

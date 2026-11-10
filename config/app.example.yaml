@@ -1,0 +1,35 @@
+# Beispiel-Konfiguration – nach config/app.yaml kopieren und anpassen (app.yaml ist git-ignoriert).
+server:
+  host: 127.0.0.1          # nur lokal erreichbar (empfohlen)
+  port: 8765
+  token: null              # API-Token; besser per Umgebungsvariable UDSBENCH_TOKEN setzen
+  open_browser: true
+logging:
+  level: INFO              # TRACE | DEBUG | INFO | WARNING | ERROR
+  dir: logs
+  mask_secrets: true       # Seeds/Keys/Zugangsdaten in Logs maskieren
+paths:
+  data_dir: data
+  package_dirs: [config/packages]
+  recordings_dir: recordings
+  reports_dir: reports
+  plugins_dir: config/plugins
+  providers_dir: config/providers
+timing:
+  p2_ms: 50
+  p2_star_ms: 5000
+  margin_ms: 100
+  max_response_pending: 20
+  adopt_server_timing: true
+  validation: strict
+tester_present:
+  enabled: true
+  interval_ms: 2000
+  suppress_response: true
+  addressing: physical
+connections:
+  # Virtueller Bus mit ECU-Testdouble (ohne Hardware):
+  - {name: default, backend: virtual, options: {bus: vbus0}, simulate: true}
+  # Beispiel für echte Hardware über python-can (Werte anpassen):
+  # - {name: default, backend: python-can, options: {interface: socketcan, channel: can0, bitrate: 500000}}
+active_packages: null      # null = zuletzt aktive Pakete; sonst Liste von Paket-IDs
