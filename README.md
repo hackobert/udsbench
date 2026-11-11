@@ -44,8 +44,10 @@ pip install .
 udsbench run --demo --open
 ```
 
-Der Browser öffnet <http://127.0.0.1:8765/>. Mit `--demo` ist ein virtueller Bus mit drei
-simulierten Steuergeräten verbunden. Probieren Sie:
+Der Browser öffnet <http://127.0.0.1:8765/> mit dem **Einrichtungsassistenten**. Er führt Schritt
+für Schritt durch CAN-Adapter, Steuergerät (CAN-IDs) und einen ersten Kommunikationstest – oder
+startet die Demo: einen virtuellen Bus mit drei simulierten Steuergeräten. Später finden Sie ihn
+unter *System → Einrichtung*, Ihre Geräte unter *System → Geräte*. In der Demo probieren Sie:
 
 1. **UDS senden** → Dienst *ReadDataByIdentifier*, DID *demo_identifier* → **Strg+Enter**.
    Die Vorschau zeigt, welche CAN-Frames auf den Bus gehen.
@@ -119,8 +121,13 @@ CAN-FD: zusätzlich `fd: true` und `data_bitrate`. Mehrere Kanäle gleichzeitig 
 
 ## Eigene Steuergeräte konfigurieren
 
-Steuergeräte, CAN-IDs, Adressierung, Padding, Sessions, Security, Kataloge, Botschaften und Tests
-stehen in **Konfig-Paketen**:
+**Am einfachsten:** *System → Geräte → Neues Gerät* (oder der Einrichtungsassistent). Dort tragen Sie
+Namen und CAN-IDs ein. Vorlagen gibt es für 11-Bit (`7E0`/`7E8`) und 29-Bit „normal fixed“
+(`18DA…`), dazu einen Test, der bei fehlender Antwort die Ursache eingrenzt. Die Demo-Geräte
+blenden Sie dort mit einem Klick aus.
+
+Für umfangreichere Konfigurationen mit Sessions, Security, Katalogen, Botschaften und Tests gibt es
+**Konfig-Pakete**:
 
 ```yaml
 isotp_profiles:

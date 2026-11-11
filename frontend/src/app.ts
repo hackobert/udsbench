@@ -74,6 +74,8 @@ export class App {
   private tokenDialogOpen = false;
   private theme: Theme | null = storedTheme();
   private connectionKnown = false;
+  /** Ansicht kam aus der URL (#/…) – dann nicht automatisch zum Assistenten springen. */
+  private explicitView = false;
 
   constructor(root: HTMLElement, api?: ApiClient) {
     this.root = root;
@@ -81,6 +83,7 @@ export class App {
     this.store = new Store(this.api);
     const saved = storage.load<string>("view", START_VIEW);
     const fromHash = window.location.hash.replace(/^#\/?/, "");
+    this.explicitView = VIEWS.some((v) => v.id === fromHash);
     this.current = VIEWS.some((v) => v.id === fromHash)
       ? fromHash
       : VIEWS.some((v) => v.id === saved)
@@ -131,6 +134,18 @@ export class App {
       await this.store.refreshAll();
     } catch (exc) {
       toastError(exc);
+    }
+    await this.maybeStartSetup();
+  }
+
+  /** Erster Start: noch nichts eingerichtet → Einrichtungsassistent öffnen. */
+  private async maybeStartSetup(): Promise<void> {
+    if (this.explicitView || this.current === "setup") return;
+    try {
+      const st = await this.api.get<{ completed: boolean; devices: { own: number } }>("/setup");
+      if (!st.completed && st.devices.own === 0) this.navigate("setup");
+    } catch {
+      /* ältere Server ohne /setup: ignorieren */
     }
   }
 
@@ -392,14 +407,16 @@ export class App {
   private renderBanner(): void {
     if (!this.banner) return;
     const connected = this.store.connection.channels.some((c) => c.connected);
-    const show = this.connectionKnown && !connected && this.current !== "connection";
+    const show =
+      this.connectionKnown && !connected && this.current !== "connection" && this.current !== "setup";
     this.banner.hidden = !show;
     if (!show) return;
     replace(
       this.banner,
       h("strong", null, t("banner.noConnection")),
       h("span", null, t("banner.noConnectionText")),
-      button(t("banner.connectNow"), () => this.navigate("connection"), { kind: "primary" }),
+      button(t("banner.wizard"), () => this.navigate("setup"), { kind: "primary" }),
+      button(t("banner.connectNow"), () => this.navigate("connection")),
       button(t("help.open"), () => openHelpTopic("verbindung"), { kind: "ghost" }),
     );
   }
@@ -513,6 +530,7 @@ export class App {
           h(
             "div",
             { class: "onb-actions" },
+            button(t("onb.wizard"), () => this.navigate("setup"), { kind: "primary" }),
             button(t("onb.more"), () => openHelpTopic("erste-schritte"), { kind: "ghost" }),
             button(t("onb.dismiss"), dismiss, { kind: "ghost", cls: "onb-dismiss" }),
           ),

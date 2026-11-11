@@ -24,8 +24,10 @@ HELP_DIR = Path(__file__).resolve().parent
 
 #: Ansicht der Oberfläche → Hilfethemen (erstes = Hauptthema)
 CONTEXT_TOPICS: dict[str, list[str]] = {
-    "home": ["erste-schritte", "tastenkuerzel", "fehlerbehebung"],
-    "connection": ["verbindung", "simulation", "fehlerbehebung"],
+    "home": ["erste-schritte", "einrichtung", "tastenkuerzel", "fehlerbehebung"],
+    "setup": ["einrichtung", "verbindung", "adressierung-padding"],
+    "devices": ["einrichtung", "isotp-profile", "pakete-konfiguration"],
+    "connection": ["verbindung", "einrichtung", "simulation", "fehlerbehebung"],
     "trace": ["trace", "adressierung-padding", "aufzeichnungen"],
     "uds": ["uds-senden", "adressierung-padding", "nrc-referenz", "dienst-referenz"],
     "isotp": ["isotp-profile", "adressierung-padding"],

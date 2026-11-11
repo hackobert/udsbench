@@ -20,6 +20,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from . import __version__
 from .api.routes import router
 from .api.routes_ext import router as router_ext
+from .api.routes_setup import router as router_setup
 from .api.ws import ws_router
 from .config.schema import AppConfig
 from .core.errors import UdsBenchError
@@ -137,6 +138,7 @@ def create_app(config: AppConfig, base_dir: Path, *, platform: Platform | None =
 
     app.include_router(router)
     app.include_router(router_ext)
+    app.include_router(router_setup)
     app.include_router(ws_router)
 
     if (STATIC_DIR / "index.html").exists():

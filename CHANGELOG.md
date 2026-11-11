@@ -5,6 +5,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- **Setup wizard** (*System → Setup*): step-by-step from choosing the goal (real ECU or demo) via
+  CAN adapter (connect + listen on the bus), ECU (CAN IDs with presets for 11-bit and 29-bit
+  normal fixed addressing) to a communication test that explains missing responses (no traffic,
+  error frames, wrong response ID) and offers IDs seen on the bus as response ID. Opens
+  automatically on first start; the connection can be restored automatically on the next start.
+- **Devices view** (*System → Devices*): create, edit, test and delete own ECUs; hide or show the
+  demo devices with one click.
+- API: `GET/POST/PUT/DELETE /devices`, `GET /setup`, `PUT /setup/demo`, `PUT /setup/connections`,
+  `PUT /setup/completed`, `GET /setup/bus-activity`.
+
 ### Fixed
 - Connecting real hardware after `udsbench run --demo` failed with "channel 'default' is already
   connected". *Connect* now switches an existing channel to the new settings

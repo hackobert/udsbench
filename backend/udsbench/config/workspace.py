@@ -1,4 +1,4 @@
-"""Arbeitsbereich-Paket: per UI/API angelegte Botschaften, Sequenzen, Tests und Suiten."""
+"""Arbeitsbereich-Paket: per UI/API angelegte Geräte (ECUs), Botschaften, Sequenzen, Tests und Suiten."""
 
 from __future__ import annotations
 
@@ -8,7 +8,13 @@ from ..core.errors import ConflictError, NotFoundError
 from .packages import PackageManager
 
 WORKSPACE_ID = "workspace"
-KINDS = {"messages": "messages", "sequences": "sequences", "tests": "tests", "testsuites": "testsuites"}
+KINDS = {
+    "ecus": "ecus",
+    "messages": "messages",
+    "sequences": "sequences",
+    "tests": "tests",
+    "testsuites": "testsuites",
+}
 
 
 class Workspace:

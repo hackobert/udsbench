@@ -2,6 +2,7 @@ import type { ViewDef } from "../view";
 import { createConnectionView } from "./connection";
 import { createConsoleView } from "./console";
 import { createDashboardsView } from "./dashboards";
+import { createDevicesView } from "./devices";
 import { createDidsView } from "./dids";
 import { createDtcsView } from "./dtcs";
 import { createIsoTpView } from "./isotp";
@@ -13,6 +14,7 @@ import { createReportsView } from "./reports";
 import { createRoutinesView } from "./routines";
 import { createSecurityView } from "./security";
 import { createSequencesView } from "./sequences";
+import { createSetupView } from "./setup";
 import { createTestsView } from "./tests";
 import { createTimechartView } from "./timechart";
 import { createTraceView } from "./trace";
@@ -55,6 +57,8 @@ export const VIEWS: ViewDef[] = [
     create: createRecordingsView,
   },
   { id: "logs", title: "nav.logs", icon: "logs", group: "evaluate", create: createLogsView },
+  { id: "setup", title: "nav.setup", icon: "wizard", group: "system", create: createSetupView },
+  { id: "devices", title: "nav.devices", icon: "device", group: "system", create: createDevicesView },
   { id: "connection", title: "nav.connection", icon: "plug", group: "system", create: createConnectionView },
   { id: "isotp", title: "nav.isotp", icon: "layers", group: "system", create: createIsoTpView },
   { id: "packages", title: "nav.packages", icon: "package", group: "system", create: createPackagesView },

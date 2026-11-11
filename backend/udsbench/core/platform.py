@@ -24,6 +24,7 @@ from ..testrunner.runner import TestRunner
 from .diag import DiagnosticsManager
 from .events import EventBus
 from .history import HistoryStore
+from .setup_state import SetupState
 from .trace import TraceService
 
 log = logging.getLogger("udsbench.app")
@@ -80,6 +81,7 @@ class Platform:
         self.runner = TestRunner(self, resolve(base_dir, p.reports_dir))
         self.reports = ReportService(self, resolve(base_dir, p.reports_dir))
         self.dashboards = DashboardStore(self, self.data_dir / "dashboards.json")
+        self.setup = SetupState(self.data_dir)
         self.plugins_dir = resolve(base_dir, p.plugins_dir)
         self.connections.on_change.append(self._on_connection_change)
         self.packages.listeners.append(self._on_packages_changed)
@@ -100,7 +102,8 @@ class Platform:
             __version__,
             ", ".join(self.packages.active) or "keine",
         )
-        for spec in self.config.connections:
+        # Verbindungen aus der App-Konfiguration haben Vorrang vor den im Assistenten gespeicherten
+        for spec in self.config.connections or self.setup.connections():
             try:
                 await self.connect(spec)
             except Exception as exc:

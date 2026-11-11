@@ -11,6 +11,9 @@ udsbench ist ein lokales Werkzeug zum Beobachten, Senden und automatisierten Tes
 UDS-Diagnose (ISO 14229) über CAN (ISO-TP, ISO 15765-2). Die Oberfläche im Browser ist ein reiner
 Client der lokalen API: Alles, was Sie hier anklicken, lässt sich auch per Skript ausführen.
 
+Am einfachsten ist der **Einrichtungsassistent** (*System → Einrichtung*): Er führt durch Adapter,
+Steuergerät und einen ersten Test, oder startet die Demo. Siehe [Einrichtung](help:einrichtung).
+
 ## In fünf Minuten zur ersten Antwort {#fuenf-minuten}
 
 1. **Verbinden**: Öffnen Sie *Verbindung*, wählen Sie *Virtueller Bus* und aktivieren Sie

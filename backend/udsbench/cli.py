@@ -44,7 +44,15 @@ def cmd_run(args: argparse.Namespace) -> int:
         cfg.server.token = args.token
     if args.log_level:
         cfg.logging.level = args.log_level
-    if args.demo and not cfg.connections:
+    from .config.loader import resolve
+    from .core.setup_state import saved_connections
+
+    # --demo nur, wenn weder app.yaml noch der Einrichtungsassistent eine Verbindung festlegen
+    if args.demo and not cfg.connections and saved_connections(resolve(base, cfg.paths.data_dir)):
+        print(
+            "Hinweis: Gespeicherte Verbindung aus dem Einrichtungsassistenten wird verwendet (--demo ignoriert)."
+        )
+    elif args.demo and not cfg.connections:
         cfg.connections = [
             ConnectionSpec(name="default", backend="virtual", options={"bus": "vbus0"}, simulate=True)
         ]
