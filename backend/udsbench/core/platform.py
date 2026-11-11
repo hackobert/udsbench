@@ -124,8 +124,8 @@ class Platform:
             get_buffer().subscribers.remove(self._log_forward)
 
     # Verbindungen ---------------------------------------------------------------------------
-    async def connect(self, spec: ConnectionSpec) -> dict[str, Any]:
-        await self.connections.connect(spec)
+    async def connect(self, spec: ConnectionSpec, *, replace: bool = False) -> dict[str, Any]:
+        await self.connections.connect(spec, replace=replace)
         return self.connections.channels[spec.name].status()
 
     async def _on_connection_change(self, name: str, state: str) -> None:

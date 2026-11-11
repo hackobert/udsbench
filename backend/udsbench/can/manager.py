@@ -7,7 +7,7 @@ from collections.abc import Callable
 from typing import Any
 
 from ..config.schema import ConnectionSpec
-from ..core.errors import ConflictError, NotConnectedError
+from ..core.errors import ConflictError, NotConnectedError, UdsBenchError
 from .channel import CanChannel
 
 log = logging.getLogger("udsbench.app.can")
@@ -26,9 +26,38 @@ class ConnectionManager:
             raise NotConnectedError(f"Kanal {name!r} ist nicht verbunden")
         return ch
 
-    async def connect(self, spec: ConnectionSpec) -> CanChannel:
+    async def connect(self, spec: ConnectionSpec, *, replace: bool = False) -> CanChannel:
         if spec.name in self.channels and self.channels[spec.name].is_open:
-            raise ConflictError(f"Kanal {spec.name!r} ist bereits verbunden")
+            if not replace:
+                raise ConflictError(
+                    f"Kanal {spec.name!r} ist bereits verbunden – erst trennen oder einen anderen Namen wählen"
+                )
+            return await self._replace(spec)
+        return await self._open(spec)
+
+    async def _replace(self, spec: ConnectionSpec) -> CanChannel:
+        """Verbundenen Kanal auf neue Einstellungen umstellen; scheitert das, alten Zustand wiederherstellen."""
+        old = self.specs.get(spec.name)
+        await self.disconnect(spec.name)
+        try:
+            return await self._open(spec)
+        except Exception as exc:
+            if old is None:
+                raise
+            try:
+                await self._open(old)
+            except Exception:  # pragma: no cover - alter Adapter inzwischen ebenfalls weg
+                log.exception("Wiederherstellen von Kanal %s fehlgeschlagen", spec.name)
+                raise exc from None
+            log.warning(
+                "Umstellen von Kanal %s fehlgeschlagen, vorherige Verbindung wiederhergestellt", spec.name
+            )
+            if isinstance(exc, UdsBenchError):
+                exc.message = f"{exc.message} (vorherige Verbindung bleibt aktiv)"
+                exc.args = (exc.message,)
+            raise
+
+    async def _open(self, spec: ConnectionSpec) -> CanChannel:
         ch = CanChannel(spec.name, spec.backend, spec.options)
         for fn in self.global_listeners:
             ch.add_listener(fn)

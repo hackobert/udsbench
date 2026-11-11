@@ -5,6 +5,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- Connecting real hardware after `udsbench run --demo` failed with "channel 'default' is already
+  connected". *Connect* now switches an existing channel to the new settings
+  (`POST /connection?replace=true`) and keeps the previous connection if the new one cannot be opened.
+- PCAN: connecting with CAN FD failed because python-can ignores `bitrate`/`data_bitrate` for
+  `pcan`; udsbench now computes the bit timing for the 80 MHz PCAN clock.
+- Connection view: switching the interface pre-fills the matching channel (e.g. `PCAN_USBBUS1`
+  instead of `can0`); new *Detect* button lists connected adapters.
+- Clear error messages with hints when a CAN interface cannot be opened (unknown PCAN channel,
+  missing PCAN-Basic library, socketcan interface down).
+
 ### Changed
 - The built browser UI (`backend/udsbench/static/`) is now committed, so udsbench can be installed
   and built (`pip install .`, wheel, PyInstaller) without Node.js/npm. CI verifies that the

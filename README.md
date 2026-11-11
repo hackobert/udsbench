@@ -111,6 +111,10 @@ connections:
 ```
 
 Unter Linux vorher: `sudo ip link set can0 up type can bitrate 500000`.
+
+**PCAN (PEAK-System):** `interface: pcan`, `channel: PCAN_USBBUS1` – nicht `can0`. Unter Windows wird
+der PEAK-Gerätetreiber benötigt (enthält `PCANBasic.dll`); unter Linux alternativ der Kerneltreiber
+`peak_usb` mit `interface: socketcan`, `channel: can0`. Details in der Hilfe (*Verbindung → PCAN*).
 CAN-FD: zusätzlich `fd: true` und `data_bitrate`. Mehrere Kanäle gleichzeitig sind möglich.
 
 ## Eigene Steuergeräte konfigurieren

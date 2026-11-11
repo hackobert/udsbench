@@ -24,7 +24,7 @@ HTTP-Status: 401, 404, 409 (Konflikt, nicht verbunden), 422 (Validierung), 500/5
 | Bereich | Routen |
 |---|---|
 | System | `GET /info`, `GET /plugins`, `GET /api/health` |
-| Verbindung | `GET /interfaces?detect=`, `GET/POST/DELETE /connection`, `POST /connection/{name}/reset`, `POST /can/send` |
+| Verbindung | `GET /interfaces?detect=&interface=`, `GET/POST/DELETE /connection` (`POST …?replace=true` stellt einen verbundenen Kanal um), `POST /connection/{name}/reset`, `POST /can/send` |
 | Konfiguration | `GET /config/ai-prompt`, `POST /config/ai-check`, `GET/PUT /config`, `GET /config/schema?kind=`, `POST /config/validate`, `POST /config/import`, `GET /config/export?package=&format=` |
 | Pakete | `GET/POST /packages`, `GET/DELETE /packages/{id}`, `POST /packages/{id}/activate|deactivate`, `PUT /packages/active`, `POST /packages/rescan` |
 | ECUs / ISO-TP | `GET /ecus`, `GET /ecus/{id}`, `POST /ecus/{id}/session`, `PUT /ecus/{id}/tester-present`, `GET /isotp/profiles`, `PUT /isotp/profiles/{name}` |

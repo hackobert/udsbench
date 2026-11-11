@@ -4,7 +4,7 @@ connection.backend: {text: "Virtueller Bus ohne Hardware oder reale Adapter übe
 connection.name: {text: "Name der Verbindung. ISO-TP-Profile verweisen über 'channel' darauf.", topic: "verbindung#kanalname"}
 connection.bus: {text: "Alle Teilnehmer mit demselben Bus-Namen sehen sich gegenseitig.", topic: "verbindung#backend"}
 connection.interface: {text: "Treibername laut python-can, z. B. socketcan.", topic: "verbindung#backend"}
-connection.channel: {text: "Kanal oder Gerät des Treibers, z. B. can0.", topic: "verbindung#backend"}
+connection.channel: {text: "Kanal oder Gerät des Treibers, z. B. can0 (socketcan) oder PCAN_USBBUS1 (pcan). Suchen findet angeschlossene Adapter.", topic: "verbindung#backend"}
 connection.bitrate: {text: "Nominal-Bitrate in Bit/s, muss zum Bus passen (häufig 250000 oder 500000).", topic: "verbindung#backend"}
 connection.fd: {text: "CAN-FD mit bis zu 64 Datenbytes je Frame.", topic: "verbindung#backend"}
 connection.data_bitrate: {text: "Bitrate der Datenphase bei CAN-FD.", topic: "verbindung#backend"}

@@ -258,3 +258,21 @@ def test_openapi_covers_required_routes(client: TestClient):
     ]
     missing = [r for r in required if r not in paths]
     assert not missing, missing
+
+
+def test_connection_replace(client: TestClient):
+    """--demo verbindet 'default' virtuell; Umstellen auf Hardware muss ohne Trennen gehen."""
+    bus = unique_bus()
+    body = {"name": "default", "backend": "virtual", "options": {"bus": bus}}
+    assert client.post("/api/v1/connection", json=body, headers=H).status_code == 200
+    r = client.post("/api/v1/connection", json=body, headers=H)
+    assert r.status_code == 409 and "trennen" in r.json()["error"]["message"]
+    # Umstellen auf ein Interface, das sich nicht öffnen lässt: Fehler, alte Verbindung bleibt
+    bad = {"name": "default", "backend": "python-can", "options": {"interface": "does-not-exist"}}
+    r = client.post("/api/v1/connection?replace=true", json=bad, headers=H)
+    assert r.status_code >= 400 and "vorherige Verbindung bleibt aktiv" in r.json()["error"]["message"]
+    ch = client.get("/api/v1/connection", headers=H).json()["channels"]
+    assert [(c["name"], c["backend"], c["connected"]) for c in ch] == [("default", "virtual", True)]
+    # Umstellen auf einen anderen virtuellen Bus klappt
+    other = {"name": "default", "backend": "virtual", "options": {"bus": unique_bus()}}
+    assert client.post("/api/v1/connection?replace=true", json=other, headers=H).status_code == 200

@@ -211,6 +211,8 @@ class PythonCanAdapter(CanAdapter):
         kwargs["receive_own_messages"] = bool(o.pop("receive_own_messages", False))
         kwargs.update(o.pop("extra", {}) or {})
         kwargs.update(o)  # weitere, treiberspezifische Parameter unverändert durchreichen
+        if kwargs["interface"] == "pcan" and kwargs.get("fd"):
+            _pcan_fd_timing(kwargs)
         return kwargs
 
     async def open(self, on_frame: FrameCallback) -> None:
@@ -233,7 +235,9 @@ class PythonCanAdapter(CanAdapter):
         except TimeoutError as exc:
             raise TransportError(f"Öffnen des CAN-Interfaces dauerte länger als {timeout}s") from exc
         except Exception as exc:
-            raise TransportError(f"CAN-Interface konnte nicht geöffnet werden: {exc}") from exc
+            raise TransportError(
+                _open_error_message(str(kwargs["interface"]), kwargs.get("channel"), exc)
+            ) from exc
         self._stop.clear()
         self._thread = threading.Thread(target=self._reader, name=f"can-rx-{self.channel_name}", daemon=True)
         self._thread.start()
@@ -316,6 +320,70 @@ class PythonCanAdapter(CanAdapter):
         return st
 
 
+# Interne Taktfrequenz der PCAN-FD-Hardware; python-can erwartet bei FD Bit-Timing statt Bitraten
+PCAN_FD_CLOCK = 80_000_000
+_PCAN_FD_TIMING_KEYS = ("timing", "f_clock", "f_clock_mhz", "nom_brp")
+
+
+def _pcan_fd_timing(kwargs: dict[str, Any]) -> None:
+    """PCAN mit CAN-FD: aus ``bitrate``/``data_bitrate`` ein Bit-Timing berechnen.
+
+    python-can ignoriert bei ``interface=pcan`` und ``fd=True`` die Bitraten und verlangt
+    ``f_clock`` und Segmentwerte. Sind diese nicht explizit angegeben, wird ein Timing für
+    80 MHz mit den Abtastpunkten ``sample_point``/``data_sample_point`` (Standard 80 %) berechnet.
+    """
+    nom_sp = float(kwargs.pop("sample_point", 80.0))
+    data_sp = float(kwargs.pop("data_sample_point", 80.0))
+    if any(k in kwargs for k in _PCAN_FD_TIMING_KEYS):
+        return
+    import can
+
+    nom = int(kwargs.get("bitrate") or 500_000)
+    data = int(kwargs.pop("data_bitrate", 0) or 2_000_000)
+    try:
+        kwargs["timing"] = can.BitTimingFd.from_sample_point(
+            f_clock=PCAN_FD_CLOCK,
+            nom_bitrate=nom,
+            nom_sample_point=nom_sp,
+            data_bitrate=data,
+            data_sample_point=data_sp,
+        )
+    except ValueError as exc:
+        raise TransportError(
+            f"PCAN CAN-FD: kein Bit-Timing für {nom} / {data} Bit/s bei 80 MHz möglich ({exc}). "
+            "Bitraten prüfen oder f_clock, nom_brp, nom_tseg1 … als Optionen angeben."
+        ) from exc
+
+
+def _open_error_message(interface: str, channel: Any, exc: Exception) -> str:
+    """Fehlermeldung beim Öffnen um konkrete Hinweise ergänzen (häufige Treiberprobleme)."""
+    detail = str(exc) or type(exc).__name__
+    msg = f"CAN-Interface konnte nicht geöffnet werden ({interface}, Kanal {channel!r}): {detail}"
+    low = detail.lower()
+    hint = ""
+    if interface == "pcan":
+        if isinstance(exc, KeyError):
+            msg = f"Unbekannter PCAN-Kanal {channel!r}."
+            hint = "PCAN-Kanäle heißen z. B. PCAN_USBBUS1, PCAN_USBBUS2 oder PCAN_PCIBUS1."
+        elif isinstance(exc, OSError) and ("library" in low or "pcanbasic" in low or ".dll" in low):
+            hint = (
+                "Die PCAN-Basic-Bibliothek fehlt. Windows: Gerätetreiber von PEAK-System installieren "
+                "(enthält PCANBasic.dll). Linux: PCAN-Basic für Linux installieren oder den "
+                "Kerneltreiber peak_usb mit interface 'socketcan' und Kanal 'can0' nutzen. "
+                "macOS: PCBUSB-Bibliothek installieren."
+            )
+        elif "initialize" in low or "hardware" in low or "not found" in low or "illegal" in low:
+            hint = (
+                "Ist der Adapter angeschlossen und nicht von einem anderen Programm (z. B. PCAN-View) "
+                "belegt? Kanal und Bitrate prüfen."
+            )
+    elif interface == "socketcan" and ("no such device" in low or "network is down" in low):
+        hint = f"Schnittstelle vorher aktivieren: sudo ip link set {channel or 'can0'} up type can bitrate 500000"
+    elif isinstance(exc, KeyError):
+        msg = f"Unbekannter Kanal {channel!r} für Interface {interface!r}."
+    return f"{msg} {hint}".strip()
+
+
 ADAPTERS: dict[str, type[CanAdapter]] = {
     "virtual": VirtualAdapter,
     "python-can": PythonCanAdapter,
@@ -330,7 +398,7 @@ def create_adapter(backend: str, channel_name: str, options: dict[str, Any]) -> 
     return cls(channel_name, options)
 
 
-def list_interfaces(detect: bool = False) -> dict[str, Any]:
+def list_interfaces(detect: bool = False, interface: str | None = None) -> dict[str, Any]:
     result: dict[str, Any] = {"backends": sorted(ADAPTERS), "python_can_interfaces": [], "detected": []}
     try:
         import can
@@ -340,7 +408,7 @@ def list_interfaces(detect: bool = False) -> dict[str, Any]:
             try:
                 result["detected"] = [
                     {k: (v if isinstance(v, (str, int, float, bool)) else str(v)) for k, v in cfg.items()}
-                    for cfg in can.detect_available_configs()
+                    for cfg in can.detect_available_configs(interface or None)
                 ]
             except Exception as exc:  # pragma: no cover
                 result["detect_error"] = str(exc)

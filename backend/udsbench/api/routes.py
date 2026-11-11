@@ -62,10 +62,11 @@ async def plugins() -> dict[str, Any]:
 
 
 @router.get("/interfaces", tags=["connection"], summary="Verfügbare CAN-Backends/-Interfaces")
-async def interfaces(detect: bool = False) -> dict[str, Any]:
+async def interfaces(detect: bool = False, interface: str | None = None) -> dict[str, Any]:
+    """``detect=true`` sucht angeschlossene Adapter, mit ``interface`` nur für diesen Treiber (schneller)."""
     loop = asyncio.get_running_loop()
     try:
-        return await asyncio.wait_for(loop.run_in_executor(None, list_interfaces, detect), 15)
+        return await asyncio.wait_for(loop.run_in_executor(None, list_interfaces, detect, interface), 15)
     except TimeoutError:
         return {**list_interfaces(False), "detect_error": "Timeout bei der Interface-Erkennung"}
 
@@ -76,8 +77,12 @@ async def connection_status(p: Platform = PlatformDep) -> dict[str, Any]:
 
 
 @router.post("/connection", tags=["connection"], summary="Kanal verbinden")
-async def connect(spec: ConnectionSpec, p: Platform = PlatformDep) -> dict[str, Any]:
-    status = await p.connect(spec)
+async def connect(spec: ConnectionSpec, replace: bool = False, p: Platform = PlatformDep) -> dict[str, Any]:
+    """``replace=true`` stellt einen bereits verbundenen Kanal gleichen Namens auf die neuen Einstellungen um.
+
+    Lässt sich die neue Verbindung nicht öffnen, bleibt die vorherige aktiv.
+    """
+    status = await p.connect(spec, replace=replace)
     return _ok(channel=status, ecus=p.diag.states(), simulation=[s["ecu"] for s in p.sim.status()])
 
 
