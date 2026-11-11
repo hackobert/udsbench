@@ -266,3 +266,26 @@ def test_action_status_reflects_negative_response(client: TestClient):
         "/api/v1/actions/run", json={"type": "uds", "payload": "3E 00", "ecu": "ecu_a"}, headers=H
     ).json()
     assert r["status"] == "passed" and r["outcome"] == "positive"
+
+
+def test_html_report_shows_ascii_of_responses():
+    from udsbench.reports.html import ascii_of, run_section
+
+    assert ascii_of("62 F1 90 57 30 4C 00") == "b··W0L·"
+    assert ascii_of("nicht hex") == "" and ascii_of(None) == "" and ascii_of("ABC") == ""
+    html_text = run_section(
+        {
+            "name": "x",
+            "status": "passed",
+            "tests": [
+                {
+                    "label": "t",
+                    "status": "passed",
+                    "steps": [
+                        {"name": "s", "status": "passed", "request": "22 F1 90", "response": "62 F1 90 41 42"}
+                    ],
+                }
+            ],
+        }
+    )
+    assert '<div class="ascii"><span class="muted">ASCII</span> b··AB</div>' in html_text

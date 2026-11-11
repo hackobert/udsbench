@@ -19,6 +19,7 @@ import {
   row,
   select,
   textInput,
+  hexAscii,
   udsResultView,
 } from "../components/ui";
 import { debounce, h, replace } from "../dom";
@@ -390,7 +391,9 @@ export function createUdsView(ctx: AppCtx): View {
                 },
                 h("code", { class: "mono" }, e.payload),
                 h("span", { class: "muted" }, ` ${e.ecu ?? ""}${e.functional ? " (func)" : ""} → `),
-                h("code", { class: "mono" }, e.summary),
+                isValidHex(e.summary, false)
+                  ? hexAscii(e.summary, { inline: true })
+                  : h("code", { class: "mono" }, e.summary),
               ),
             ),
           )

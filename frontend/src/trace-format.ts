@@ -1,5 +1,5 @@
 /** Trace-Zeilen: Einfärbung und Formatierung (Klassifizierung liefert das Backend). */
-import { bytesToAscii } from "./hex";
+import { asciiOf } from "./hex";
 import type { TraceItem } from "./types";
 
 export type TraceView = "frames" | "messages";
@@ -76,7 +76,7 @@ export function traceCells(item: TraceItem, t0: number): TraceRowCells {
       id: item.id_hex + (item.ext ? "x" : ""),
       dlc: String(item.dlc),
       data: item.data,
-      ascii: item.ascii,
+      ascii: asciiOf(item.data),
       text: [item.pci, item.text].filter(Boolean).join("  "),
     };
   }
@@ -88,7 +88,7 @@ export function traceCells(item: TraceItem, t0: number): TraceRowCells {
     id: id !== undefined ? id.toString(16).toUpperCase() : "",
     dlc: String(item.len),
     data: item.payload,
-    ascii: bytesToAscii(item.payload),
+    ascii: asciiOf(item.payload),
     text: (item.text ?? "") + (item.frames > 1 ? `  (${item.frames} Frames)` : ""),
   };
 }

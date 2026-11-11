@@ -14,7 +14,7 @@ main{max-width:1180px;margin:0 auto;padding:24px 16px}h1{font-size:22px;margin:0
 h3{font-size:15px;margin:16px 0 6px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .tile{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}.tile b{display:block;font-size:22px}
 table{border-collapse:collapse;width:100%;font-size:12.5px;margin:6px 0}th,td{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}
-th{background:var(--card);position:sticky;top:0}td.mono,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;word-break:break-all}
+th{background:var(--card);position:sticky;top:0}td.mono,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;word-break:break-all}.ascii{white-space:pre-wrap;opacity:.85}
 .st{font-weight:600;text-transform:uppercase;font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid currentColor}
 .passed,.positive{color:var(--ok)}.failed,.negative,.error,.timeout{color:var(--bad)}.skipped,.cancelled,.suppressed,.warning{color:var(--warn)}
 details{border:1px solid var(--line);border-radius:6px;margin:6px 0;padding:4px 8px}summary{cursor:pointer;font-weight:600}
@@ -39,6 +39,21 @@ EXTRA = ["#3b74d9", "#e07b39", "#2e9d5b", "#a259c4", "#d64545", "#4db1c4", "#c0a
 
 def e(v: Any) -> str:
     return html.escape("" if v is None else str(v))
+
+
+def ascii_of(hex_text: Any) -> str:
+    """ASCII-Übersetzung von Hex-Bytes („62 F1 90 …“): druckbare Zeichen, sonst „·“. Leer bei Nicht-Hex."""
+    if not isinstance(hex_text, str):
+        return ""
+    s = "".join(hex_text.split())
+    if not s or len(s) % 2 or any(c not in "0123456789abcdefABCDEF" for c in s):
+        return ""
+    return "".join(chr(b) if 0x20 <= b < 0x7F else "·" for b in bytes.fromhex(s))
+
+
+def _ascii_html(hex_text: Any) -> str:
+    a = ascii_of(hex_text)
+    return f'<div class="ascii"><span class="muted">ASCII</span> {e(a)}</div>' if a else ""
 
 
 def ts(t: float | None, ms: bool = True) -> str:
@@ -152,7 +167,7 @@ def run_section(run: dict[str, Any], open_failed: bool = True) -> str:
             out.append(
                 f'<tr><td>{indent}{e(st.get("name"))}<div class="muted">{e(st.get("message"))}</div></td>'
                 f'<td><span class="st {e(st.get("status"))}">{e(st.get("status"))}</span></td><td>{e(st.get("ecu"))}</td>'
-                f'<td class="mono">{e(st.get("request"))}</td><td class="mono">{e(st.get("response"))}</td>'
+                f'<td class="mono">{e(st.get("request"))}</td><td class="mono">{e(st.get("response"))}{_ascii_html(st.get("response"))}</td>'
                 f"<td>{e(st.get('elapsed_ms'))}</td><td>{asserts}</td></tr>"
             )
         out.append("</table>")
@@ -246,7 +261,7 @@ def render_manual(rep: dict[str, Any]) -> str:
         for m in msgs[-3000:]:
             b.append(
                 f'<tr><td class="mono">{e(ts(m.get("ts")))}</td><td>{e(m.get("ecu"))}</td><td>{e(m.get("role"))}</td>'
-                f'<td class="mono">{e(m.get("payload"))}</td><td class="{e(m.get("uds"))}">{e(m.get("text"))}</td></tr>'
+                f'<td class="mono">{e(m.get("payload"))}{_ascii_html(m.get("payload"))}</td><td class="{e(m.get("uds"))}">{e(m.get("text"))}</td></tr>'
             )
         b.append("</table>")
     att = rep.get("attachments") or []

@@ -13,6 +13,9 @@ All notable changes to this project are documented here. The format follows
   automatically on first start; the connection can be restored automatically on the next start.
 - **Devices view** (*System → Devices*): create, edit, test and delete own ECUs; hide or show the
   demo devices with one click.
+- UDS responses are shown with their ASCII translation in every view (UDS send + history, DIDs,
+  DTCs, routines, security, messages, sequences/test logs, dashboard actions, console, HTML
+  reports). Non-printable bytes are shown as `·` (also in the trace's ASCII column).
 - API: `GET/POST/PUT/DELETE /devices`, `GET /setup`, `PUT /setup/demo`, `PUT /setup/connections`,
   `PUT /setup/completed`, `GET /setup/bus-activity`.
 

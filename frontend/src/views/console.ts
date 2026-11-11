@@ -1,7 +1,8 @@
 import { infoIcon } from "../help";
 import { ApiError, formatErrorDetails } from "../api";
 import { CONSOLE_HELP, parseCommand, toCurl } from "../console-parser";
-import { button, card } from "../components/ui";
+import { button, card, hexAscii } from "../components/ui";
+import { isValidHex } from "../hex";
 import { h } from "../dom";
 import { t } from "../i18n";
 import * as storage from "../storage";
@@ -73,6 +74,17 @@ export function createConsoleView(ctx: AppCtx): View {
       const res = await api.request<unknown>(cmd.method, cmd.path, cmd.body);
       const ms = Math.round(performance.now() - t0);
       entry.appendChild(h("div", { class: "console-status ok" }, `✔ ${cmd.method} ${cmd.path} · ${ms} ms`));
+      const responses = collectResponses(res);
+      if (responses.length)
+        entry.appendChild(
+          h(
+            "div",
+            { class: "console-ascii" },
+            responses.map((r) =>
+              h("div", null, h("span", { class: "muted" }, "← "), hexAscii(r, { inline: true })),
+            ),
+          ),
+        );
       entry.appendChild(
         h("pre", { class: "json" }, typeof res === "string" ? res : JSON.stringify(res, null, 2)),
       );
@@ -148,4 +160,18 @@ export function createConsoleView(ctx: AppCtx): View {
     show: () => input.focus(),
     submit: () => void exec(input.value).then(() => (input.value = "")),
   };
+}
+
+/** UDS-Antworten (Hex) in einem API-Ergebnis finden – Felder „response“, auch verschachtelt. */
+export function collectResponses(res: unknown, out: string[] = [], depth = 0): string[] {
+  if (depth > 4 || res === null || typeof res !== "object") return out;
+  if (Array.isArray(res)) {
+    for (const x of res) collectResponses(x, out, depth + 1);
+    return out;
+  }
+  for (const [k, v] of Object.entries(res as Record<string, unknown>)) {
+    if (k === "response" && typeof v === "string" && v && isValidHex(v, false)) out.push(v);
+    else if (typeof v === "object") collectResponses(v, out, depth + 1);
+  }
+  return out.slice(0, 20);
 }

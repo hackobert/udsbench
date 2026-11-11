@@ -4,7 +4,7 @@ import { t } from "../i18n";
 import type { Store } from "../store";
 import type { RunSummary, StepRecord, UdsResult } from "../types";
 import { summaryText } from "./run-log";
-import { statusBadge } from "./ui";
+import { hexAscii, statusBadge } from "./ui";
 
 export type ResultTone = "ok" | "fail" | "run" | "muted";
 
@@ -29,7 +29,7 @@ export function actionResultView(res: Record<string, unknown>, store: Store): HT
   const runId = res["run_id"] as string | undefined;
   const parts: (HTMLElement | string | null)[] = [];
   const resp = r?.response ?? step?.response ?? null;
-  if (resp) parts.push(h("code", { class: "mono" }, resp));
+  if (resp) parts.push(hexAscii(resp, { inline: true }));
   const text = r?.decoded?.nrc_description
     ? `NRC ${r.decoded.nrc_hex ?? ""} ${r.decoded.nrc_name ?? ""} – ${r.decoded.nrc_description}`
     : (r?.decoded?.text ??

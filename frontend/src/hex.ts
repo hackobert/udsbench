@@ -111,6 +111,20 @@ export function bytesToAscii(hex: string): string {
   }
 }
 
+/**
+ * ASCII-Übersetzung für die Anzeige von UDS-Daten: druckbare Zeichen (0x20–0x7E) unverändert,
+ * alle anderen Bytes als „·“ – so bleibt ein echter Punkt (0x2E) unterscheidbar.
+ */
+export function asciiOf(hex: string): string {
+  try {
+    return parseHex(hex)
+      .map((b) => (b >= 0x20 && b < 0x7f ? String.fromCharCode(b) : "·"))
+      .join("");
+  } catch {
+    return "";
+  }
+}
+
 /** Anzeige eines STmin-Rohwerts (nur Darstellung): 0x00–0x7F ms, 0xF1–0xF9 = 100–900 µs, sonst reserviert. */
 export function stminText(raw: number): string {
   if (raw >= 0 && raw <= 0x7f) return `${raw} ms`;

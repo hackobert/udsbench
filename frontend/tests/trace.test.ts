@@ -55,7 +55,7 @@ describe("trace row coloring", () => {
     expect(traceRowClass({ ...m, uds: "request" })).toContain("t-req");
     const c = traceCells(m, 100);
     expect(c.id).toBe("708");
-    expect(c.ascii).toBe("b..A");
+    expect(c.ascii).toBe("b··A");
     expect(c.time).toBe("1.000");
   });
 

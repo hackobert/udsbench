@@ -52,6 +52,10 @@ Gruppe; alle Antworten werden gesammelt. Funktionale Anfragen müssen in einen S
   DTC-Listen).
 * **Negativ**: `7F <SID> <NRC>` mit Klartext, z. B. 0x31 requestOutOfRange.
   Siehe [NRC-Referenz](help:nrc-referenz).
+* **ASCII**: Unter jeder Antwort steht ihre ASCII-Übersetzung, z. B. `62 F1 00 44 45 4D 4F` →
+  `b··DEMO`. Nicht druckbare Bytes erscheinen als `·`, ein echter Punkt (0x2E) als `.`. Das gilt in
+  allen Ansichten: Verlauf, DIDs, Fehlerspeicher, Routinen, Security, Tests, Dashboard, Konsole,
+  Trace und HTML-Report.
 * **Antwortzeit** wird ab Ende der Übertragung gemessen. Zwischenantworten 0x78
   (ResponsePending) werden gezählt.
 

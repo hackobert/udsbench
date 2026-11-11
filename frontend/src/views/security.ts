@@ -14,6 +14,7 @@ import {
   statusBadge,
   table,
   textInput,
+  hexAscii,
   udsResultView,
 } from "../components/ui";
 import { h, replace } from "../dom";
@@ -209,7 +210,8 @@ export function createSecurityView(ctx: AppCtx): View {
             null,
             h("strong", null, s.step),
             " ",
-            h("code", { class: "mono" }, `${s.result?.request ?? ""} → ${s.result?.response ?? "–"}`),
+            h("code", { class: "mono" }, `${s.result?.request ?? ""} → `),
+            hexAscii(s.result?.response, { inline: true }),
             " ",
             h("span", { class: "muted" }, s.result?.decoded?.text ?? ""),
           ),

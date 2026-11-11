@@ -3,6 +3,7 @@ import { type Child, h, replace } from "../dom";
 import { t } from "../i18n";
 import type { Assertion, StepRecord, UdsResult } from "../types";
 import { infoIcon, openHelpTopic } from "../help";
+import { asciiOf, isValidHex } from "../hex";
 import { toastError } from "./toast";
 
 /**
@@ -248,6 +249,36 @@ export function valueView(value: unknown, unit?: string): Child {
   return h("span", { class: "value" }, String(value), unit ? h("span", { class: "unit" }, ` ${unit}`) : null);
 }
 
+/**
+ * Hex-Daten mit ASCII-Übersetzung (nicht darstellbare Bytes als „·“).
+ * `inline`: ASCII in Anführungszeichen hinter den Hex-Bytes, sonst in einer eigenen Zeile.
+ */
+export function hexAscii(hex: string | null | undefined, opts: { inline?: boolean } = {}): HTMLElement {
+  if (!hex) return h("code", { class: "mono" }, "–");
+  const ascii = isValidHex(hex, false) ? asciiOf(hex) : "";
+  if (opts.inline) {
+    return h(
+      "span",
+      { class: "hexascii-inline" },
+      h("code", { class: "mono" }, hex),
+      ascii ? h("code", { class: "ascii", title: "ASCII" }, ` "${ascii}"`) : null,
+    );
+  }
+  return h(
+    "span",
+    { class: "hexascii" },
+    h("code", { class: "mono" }, hex),
+    ascii
+      ? h(
+          "span",
+          { class: "ascii-row" },
+          h("span", { class: "ascii-label" }, "ASCII"),
+          h("code", { class: "ascii" }, ascii),
+        )
+      : null,
+  );
+}
+
 /** Antwortanzeige eines UDS-Requests (roh + interpretiert). */
 export function udsResultView(r: UdsResult): HTMLElement {
   const kind = r.error ? "fail" : r.negative ? "neg" : r.positive ? "ok" : "muted";
@@ -284,7 +315,7 @@ export function udsResultView(r: UdsResult): HTMLElement {
     ),
     kv([
       [t("uds.request"), h("code", { class: "mono" }, r.request)],
-      [t("uds.response"), h("code", { class: "mono" }, r.response ?? "–")],
+      [t("uds.response"), hexAscii(r.response)],
       [t("uds.interpretation"), r.decoded?.text ?? "–"],
       ...(r.decoded?.nrc_description
         ? [[t("uds.nrcText"), r.decoded.nrc_description] as [string, Child]]
@@ -317,7 +348,7 @@ export function udsResultView(r: UdsResult): HTMLElement {
               {
                 key: "resp",
                 label: t("uds.response"),
-                render: (m) => h("code", { class: "mono" }, m.response ?? ""),
+                render: (m) => hexAscii(m.response),
               },
               { key: "text", label: t("uds.interpretation"), render: (m) => m.decoded?.text ?? "" },
             ],
@@ -338,7 +369,7 @@ export function fieldsView(fields: Record<string, unknown>): HTMLElement {
         { key: "did", label: "DID", render: (r) => h("code", null, r.did_hex ?? "") },
         { key: "name", label: t("common.name"), render: (r) => r.name ?? "" },
         { key: "value", label: t("common.value"), render: (r) => valueView(r.value, r.unit) },
-        { key: "raw", label: t("common.raw"), render: (r) => h("code", { class: "mono" }, r.raw ?? "") },
+        { key: "raw", label: t("common.raw"), render: (r) => hexAscii(r.raw) },
       ],
       records as Rec[],
     );
@@ -393,7 +424,7 @@ export function stepView(s: StepRecord): HTMLElement {
     s.request || s.response
       ? kv([
           [t("uds.request"), h("code", { class: "mono" }, s.request ?? "–")],
-          [t("uds.response"), h("code", { class: "mono" }, s.response ?? "–")],
+          [t("uds.response"), hexAscii(s.response)],
           [t("uds.interpretation"), s.decoded?.text ?? "–"],
         ])
       : null,

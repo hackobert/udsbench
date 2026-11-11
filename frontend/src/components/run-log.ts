@@ -3,7 +3,7 @@ import { h, replace } from "../dom";
 import { t } from "../i18n";
 import type { Store } from "../store";
 import type { EventMsg, RunInfo, RunSummary, StepRecord } from "../types";
-import { assertionsView, statusBadge } from "./ui";
+import { assertionsView, hexAscii, statusBadge } from "./ui";
 
 export interface RunLog {
   el: HTMLElement;
@@ -21,7 +21,7 @@ export function stepLine(s: StepRecord): HTMLElement {
       statusBadge(s.status),
       h("span", { class: "log-step-name" }, ` ${s.name || s.action}`),
       s.request ? h("code", { class: "mono" }, ` → ${s.request}`) : null,
-      s.response ? h("code", { class: "mono" }, ` ← ${s.response}`) : null,
+      s.response ? h("span", null, " ← ", hexAscii(s.response, { inline: true })) : null,
       s.elapsed_ms !== null && s.elapsed_ms !== undefined
         ? h("span", { class: "muted" }, ` (${s.elapsed_ms} ms)`)
         : null,
