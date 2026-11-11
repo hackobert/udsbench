@@ -28,6 +28,7 @@ const PATHS: Record<string, string> = {
   menu: "M4 6h16M4 12h16M4 18h16",
   collapse: "M15 6l-6 6 6 6",
   expand: "M9 6l6 6-6 6",
+  dbc: "M4 5h16v4H4zM4 11h7v8H4zM13 11h7v3h-7zM13 16h7v3h-7z",
   wizard: "M4 20l10-10M14 10l2-2M15 4v2M19 8h2M18 5l1.5-1.5M12 6l1 1M17 11l1 1",
   device: "M5 7h14v10H5zM8 17v3M16 17v3M8 4v3M16 4v3M9 11h6M9 14h3",
 };

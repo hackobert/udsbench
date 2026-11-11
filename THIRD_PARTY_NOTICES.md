@@ -11,6 +11,7 @@ under their own licenses.
 | [Uvicorn](https://github.com/encode/uvicorn) (`[standard]` extra) | BSD-3-Clause | ASGI server; extras: websockets (BSD-3-Clause), httptools (MIT), uvloop (MIT/Apache-2.0), watchfiles (MIT), python-dotenv (BSD-3-Clause) |
 | [Pydantic](https://github.com/pydantic/pydantic) / pydantic-core | MIT | schema validation |
 | [PyYAML](https://github.com/yaml/pyyaml) | MIT | YAML parsing |
+| [cantools](https://github.com/cantools/cantools) | MIT | DBC parsing, signal decoding/encoding; dependencies bitstruct (MIT), textparser (MIT), crccheck (MIT), argparse_addons (MIT) |
 | [python-can](https://github.com/hardbyte/python-can) | **LGPL-3.0-only** | CAN hardware abstraction; dependencies wrapt (BSD-2-Clause), packaging (Apache-2.0 OR BSD-2-Clause), typing_extensions (PSF-2.0) |
 
 ## python-can (LGPL-3.0)

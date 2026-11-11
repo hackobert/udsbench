@@ -2141,6 +2141,62 @@ progress {
   align-self: flex-start;
 }
 
+/* --- DBC & Signale --------------------------------------------------------------------------- */
+.dbc-assign {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+}
+.dbc-sigs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.dbc-sig {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  font-size: var(--fs-sm);
+}
+.dbc-sig-name {
+  padding: 1px 6px;
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+.dbc-sig-val {
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.dbc-inactive {
+  opacity: 0.45;
+}
+.dbc-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: min(860px, 80vw);
+}
+.dbc-browser {
+  max-height: 60vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+.dbc-msg {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-1) var(--sp-2);
+}
+.dbc-msg[open] {
+  padding-bottom: var(--sp-2);
+}
+.dbc-msg summary {
+  cursor: pointer;
+}
+
 /* --- Hex + ASCII (UDS-Antworten) ---------------------------------------------------------- */
 .hexascii {
   display: inline-flex;

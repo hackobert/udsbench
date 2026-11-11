@@ -2,6 +2,7 @@ import type { ViewDef } from "../view";
 import { createConnectionView } from "./connection";
 import { createConsoleView } from "./console";
 import { createDashboardsView } from "./dashboards";
+import { createDbcView } from "./dbc";
 import { createDevicesView } from "./devices";
 import { createDidsView } from "./dids";
 import { createDtcsView } from "./dtcs";
@@ -63,6 +64,8 @@ export const VIEWS: ViewDef[] = [
   { id: "isotp", title: "nav.isotp", icon: "layers", group: "system", create: createIsoTpView },
   { id: "packages", title: "nav.packages", icon: "package", group: "system", create: createPackagesView },
   { id: "console", title: "nav.console", icon: "terminal", group: "system", create: createConsoleView },
+  // am Ende, damit die Alt+Ziffer-Kürzel der übrigen Ansichten gleich bleiben; erscheint unter „Beobachten“
+  { id: "dbc", title: "nav.dbc", icon: "dbc", group: "observe", create: createDbcView },
 ];
 
 export const NAV_GROUPS = ["observe", "diagnose", "automate", "evaluate", "system"] as const;

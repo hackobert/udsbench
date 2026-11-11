@@ -6,6 +6,10 @@ All notable changes to this project are documented here. The format follows
 ## [Unreleased]
 
 ### Added
+- **DBC & signals** (*Observe → DBC & signals*): upload DBC files, assign them **per CAN channel**,
+  decode frames in the trace (`Message: signal=value unit, …`) and in a live signal table (cycle
+  time, count, age), browse messages/signals, encode and send messages from signal values
+  (multiplexer-aware). New dependency: cantools (MIT).
 - **Setup wizard** (*System → Setup*): step-by-step from choosing the goal (real ECU or demo) via
   CAN adapter (connect + listen on the bus), ECU (CAN IDs with presets for 11-bit and 29-bit
   normal fixed addressing) to a communication test that explains missing responses (no traffic,

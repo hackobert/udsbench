@@ -25,6 +25,7 @@ HTTP-Status: 401, 404, 409 (Konflikt, nicht verbunden), 422 (Validierung), 500/5
 |---|---|
 | System | `GET /info`, `GET /plugins`, `GET /api/health` |
 | Einrichtung & Geräte | `GET /setup`, `PUT /setup/demo` (Demo-Geräte ein/aus), `PUT /setup/connections` (beim Start verbinden), `PUT /setup/completed`, `GET /setup/bus-activity?channel=&seconds=`, `GET/POST/PUT/DELETE /devices` (eigene ECUs mit eingebettetem ISO-TP-Profil) |
+| DBC & Signale | `GET /dbc`, `POST /dbc` (Upload), `GET/DELETE /dbc/files/{id}`, `PUT /dbc/channels/{kanal}` (Zuordnung je Kanal), `GET /dbc/channels/{kanal}/messages`, `GET/DELETE /dbc/live?channel=`, `POST /dbc/encode` (kodieren, optional senden) |
 | Verbindung | `GET /interfaces?detect=&interface=`, `GET/POST/DELETE /connection` (`POST …?replace=true` stellt einen verbundenen Kanal um), `POST /connection/{name}/reset`, `POST /can/send` |
 | Konfiguration | `GET /config/ai-prompt`, `POST /config/ai-check`, `GET/PUT /config`, `GET /config/schema?kind=`, `POST /config/validate`, `POST /config/import`, `GET /config/export?package=&format=` |
 | Pakete | `GET/POST /packages`, `GET/DELETE /packages/{id}`, `POST /packages/{id}/activate|deactivate`, `PUT /packages/active`, `POST /packages/rescan` |

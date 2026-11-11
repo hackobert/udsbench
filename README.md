@@ -61,7 +61,7 @@ Die API-Dokumentation zum Ausprobieren liegt unter <http://127.0.0.1:8765/docs>.
 
 | Bereich | Funktionen |
 |---|---|
-| **Beobachten** | Live-Trace mit Frames und zusammengesetzten UDS-Nachrichten, Filter, Lesezeichen · Timechart mit Ereignis-Spur · Aufzeichnung und Replay (ASC, CSV, candump, JSONL) |
+| **Beobachten** | Live-Trace mit Frames und zusammengesetzten UDS-Nachrichten, Filter, Lesezeichen · DBC-Dateien je Kanal mit Signal-Dekodierung im Trace, Live-Signalen und Senden aus Signalwerten · Timechart mit Ereignis-Spur · Aufzeichnung und Replay (ASC, CSV, candump, JSONL) |
 | **Diagnose** | 27 UDS-Dienste mit Subfunktionen, vollständige NRC-Tabelle · Byte- und Frame-Vorschau mit PCI, Adressbyte und Padding · DIDs typgerecht lesen/schreiben · Fehlerspeicher mit Statusbits · Routinen · Download/Upload · Security Access mit austauschbaren Providern |
 | **Automatisieren** | vordefinierte Botschaften mit Platzhaltern · Sequenzen mit Bedingungen und Schleifen · deklarative Tests (YAML) mit Assertions und Datensätzen · NRC-Provokationssuite · Dashboards mit eigenen Knöpfen |
 | **Auswerten** | Reports als JSON, JUnit-XML, HTML oder ZIP mit Traces und Logs · Reports über frei wählbare Zeitbereiche · strukturierte Logs mit Korrelations-ID, Audit-Log |

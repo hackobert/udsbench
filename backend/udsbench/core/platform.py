@@ -14,6 +14,7 @@ from ..config.loader import resolve
 from ..config.packages import MergedConfig, PackageManager
 from ..config.schema import AppConfig, ConnectionSpec
 from ..dashboards.store import DashboardStore
+from ..dbc.store import DbcStore
 from ..logs.recorder import RecorderService
 from ..logs.setup import get_buffer, setup_logging
 from ..plugins.registry import registry
@@ -82,6 +83,7 @@ class Platform:
         self.reports = ReportService(self, resolve(base_dir, p.reports_dir))
         self.dashboards = DashboardStore(self, self.data_dir / "dashboards.json")
         self.setup = SetupState(self.data_dir)
+        self.dbc = DbcStore(self.data_dir)
         self.plugins_dir = resolve(base_dir, p.plugins_dir)
         self.connections.on_change.append(self._on_connection_change)
         self.packages.listeners.append(self._on_packages_changed)
@@ -97,6 +99,7 @@ class Platform:
         registry.load_dir(self.plugins_dir)
         self.packages.scan()
         self.packages.load_state(self.config.active_packages)
+        self.dbc.load()
         log.info(
             "udsbench %s gestartet – aktive Pakete: %s",
             __version__,

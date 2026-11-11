@@ -11,7 +11,7 @@ license = "MIT"
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md", "AI_DISCLOSURE.md"]
 requires-python = ">=3.11"
 authors = [{ name = "The udsbench authors" }]
-keywords = ["uds", "iso-14229", "iso-15765", "isotp", "can", "can-fd", "diagnostics", "ecu", "testing", "automotive"]
+keywords = ["dbc", "uds", "iso-14229", "iso-15765", "isotp", "can", "can-fd", "diagnostics", "ecu", "testing", "automotive"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -31,6 +31,7 @@ dependencies = [
   "pydantic>=2.6",
   "PyYAML>=6.0",
   "python-can>=4.3",
+  "cantools>=39",
 ]
 
 [project.optional-dependencies]

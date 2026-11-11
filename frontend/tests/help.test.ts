@@ -53,6 +53,7 @@ describe("navigation & onboarding", () => {
       "console",
       "setup",
       "devices",
+      "dbc",
     ];
     expect(VIEWS.map((v) => v.id).sort()).toEqual([...ctx].sort());
     expect(new Set(VIEWS.map((v) => v.group))).toEqual(

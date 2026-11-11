@@ -21,7 +21,7 @@ a = Analysis(  # noqa: F821
     [str(root / "packaging" / "entry.py")],
     pathex=[str(root / "backend")],
     datas=datas,
-    hiddenimports=collect_submodules("udsbench") + collect_submodules("can.interfaces") + collect_submodules("uvicorn"),
+    hiddenimports=collect_submodules("udsbench") + collect_submodules("can.interfaces") + collect_submodules("cantools") + collect_submodules("uvicorn"),
     excludes=["tkinter"],
 )
 pyz = PYZ(a.pure)  # noqa: F821

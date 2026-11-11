@@ -135,6 +135,11 @@ class TraceService:
                 d["text"] = f"Flow Control {fs} BS={iso.get('bs')} STmin=0x{iso.get('st_min') or 0:02X}"
             if "error" in cls:
                 d["text"] = cls["error"]
+        else:
+            dbc = self.platform.dbc.decode_frame(frame)
+            if dbc is not None:
+                d["dbc"] = dbc
+                d["text"] = self.platform.dbc.describe(dbc)
         self.frames.append(d)
         self.monitor.feed(frame)
         self._fanout(d)

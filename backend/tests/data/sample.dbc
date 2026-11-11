@@ -1,0 +1,23 @@
+VERSION ""
+
+NS_ :
+
+BS_:
+
+BU_: TESTER BODY
+
+BO_ 256 EngineData: 8 BODY
+ SG_ EngineSpeed : 0|16@1+ (0.25,0) [0|16383.75] "rpm" TESTER
+ SG_ CoolantTemp : 16|8@1+ (1,-40) [-40|215] "degC" TESTER
+ SG_ Mode : 24|2@1+ (1,0) [0|3] "" TESTER
+
+BO_ 2566844926 J1939Msg: 8 BODY
+ SG_ Value : 0|8@1+ (1,0) [0|255] "" TESTER
+
+BO_ 512 Status: 2 BODY
+ SG_ Mux M : 0|8@1+ (1,0) [0|255] "" TESTER
+ SG_ A m1 : 8|8@1+ (1,0) [0|255] "" TESTER
+ SG_ B m2 : 8|8@1- (1,0) [-128|127] "" TESTER
+
+CM_ SG_ 256 EngineSpeed "Motordrehzahl";
+VAL_ 256 Mode 0 "off" 1 "standby" 2 "active" 3 "fault" ;
