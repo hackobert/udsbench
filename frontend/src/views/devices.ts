@@ -92,9 +92,12 @@ export function createDevicesView(ctx: AppCtx): View {
             "div",
             { class: "empty setup-empty" },
             h("p", null, t("dev.noneOwn")),
-            button(`+ ${t("dev.add")}`, () => openWizard({ mode: "device" }), { kind: "primary" }),
-            " ",
-            button(t("dev.wizard"), () => openWizard({ mode: "full" })),
+            h(
+              "div",
+              { class: "row" },
+              button(`+ ${t("dev.add")}`, () => openWizard({ mode: "device" }), { kind: "primary" }),
+              button(t("dev.wizard"), () => openWizard({ mode: "full" })),
+            ),
           ),
     );
 

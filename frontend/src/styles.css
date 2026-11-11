@@ -79,6 +79,11 @@
   --radius: 6px;
   --radius-sm: 4px;
   --header-h: 52px;
+  /* Einheitliche Steuerelement-Höhen: Eingabefelder, Auswahllisten und Knöpfe fluchten */
+  --ctl-h: 34px;
+  --ctl-h-sm: 28px;
+  /* Höhe der Feldbeschriftung über einem Eingabefeld (Label + Abstand) */
+  --label-offset: 19px;
   color-scheme: light;
 }
 
@@ -683,7 +688,7 @@ mark {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: var(--sp-3);
-  align-items: end;
+  align-items: start;
 }
 .row {
   display: flex;
@@ -703,7 +708,7 @@ mark {
 fieldset {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  margin: 0;
+  margin: 6px 0 0;
   padding: var(--sp-2) var(--sp-3) var(--sp-3);
   display: flex;
   flex-direction: column;
@@ -757,7 +762,13 @@ textarea {
   padding: 6px 8px;
   min-width: 0;
   max-width: 100%;
-  min-height: 32px;
+  min-height: var(--ctl-h);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]),
+select {
+  height: var(--ctl-h);
+  padding-top: 0;
+  padding-bottom: 0;
 }
 input:hover,
 select:hover,
@@ -784,12 +795,46 @@ input[type="checkbox"] {
   margin: 0;
 }
 select.compact {
-  padding: 4px 6px;
-  min-height: 28px;
+  padding: 0 6px;
+  min-height: var(--ctl-h-sm);
+  height: var(--ctl-h-sm);
 }
 textarea {
   width: 100%;
   resize: vertical;
+  height: auto;
+  padding: 6px 8px;
+}
+input[type="radio"] {
+  min-height: 0;
+  margin: 0;
+  accent-color: var(--accent);
+}
+/* Datei-Auswahl im Stil der übrigen Knöpfe */
+input[type="file"] {
+  min-height: var(--ctl-h);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--fs-sm);
+  color: var(--text-2);
+  max-width: 340px;
+}
+input[type="file"]::file-selector-button {
+  font: inherit;
+  font-weight: 500;
+  color: var(--text);
+  height: var(--ctl-h);
+  padding: 0 12px;
+  margin-right: var(--sp-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  cursor: pointer;
+}
+input[type="file"]::file-selector-button:hover {
+  background: var(--surface-2);
+  border-color: var(--text-3);
 }
 .invalid {
   border-color: var(--err) !important;
@@ -836,11 +881,12 @@ textarea {
   background: var(--surface);
   color: var(--text);
   border-radius: var(--radius-sm);
-  padding: 5px 12px;
-  min-height: 32px;
+  padding: 0 12px;
+  min-height: var(--ctl-h);
   cursor: pointer;
   white-space: nowrap;
   list-style: none;
+  line-height: 1.2;
 }
 .btn:hover {
   background: var(--surface-2);
@@ -882,16 +928,23 @@ textarea {
 .btn-ghost {
   background: transparent;
   border-color: transparent;
-  color: var(--text-2);
+  color: var(--accent);
 }
 .btn-ghost:hover {
-  background: var(--surface-2);
+  background: var(--accent-soft);
   border-color: transparent;
+  color: var(--accent-hover);
+}
+.btn-ghost.btn-icon {
+  color: var(--text-2);
+}
+.btn-ghost.btn-icon:hover {
+  background: var(--surface-2);
   color: var(--text);
 }
 .btn-icon {
-  padding: 5px;
-  min-width: 32px;
+  padding: 0;
+  min-width: var(--ctl-h);
 }
 .btn.busy {
   position: relative;
@@ -1092,7 +1145,7 @@ textarea {
   text-align: left;
   padding: 6px 10px;
   border-bottom: 1px solid var(--line);
-  vertical-align: top;
+  vertical-align: middle;
 }
 .tbl th {
   font-size: var(--fs-xs);
@@ -3116,5 +3169,192 @@ code.ascii {
   }
   .conn-banner {
     padding: var(--sp-2) var(--sp-3);
+  }
+}
+
+/* =========================================================================================== */
+/* Einheitliche Ausrichtung                                                                     */
+/* Regeln, damit Felder, Knöpfe und Checkboxen in Rastern, Zeilen und Leisten auf einer Linie   */
+/* liegen – unabhängig davon, ob ein Feld eine Beschriftung oder einen Hinweistext hat.         */
+/* =========================================================================================== */
+
+/* Felder im Raster füllen ihre Spalte; feste Breiten (w-xs …) gelten nur außerhalb von Rastern. */
+.grid > .field > :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea),
+.grid > .field > .row > :is(input, select):only-of-type {
+  width: 100%;
+}
+.grid > .field > .row {
+  flex-wrap: nowrap;
+}
+.grid > .field > .row > :is(input, select) {
+  flex: 1;
+}
+
+/* Checkboxen im Raster auf Höhe der Eingabefelder (unter der Beschriftungszeile). */
+.grid > :is(.check, .inline),
+.grid > .field:not(:has(> .field-label)) > .check:first-child {
+  margin-top: var(--label-offset);
+  min-height: var(--ctl-h);
+}
+/* … außer sie beginnen nach einem ganzzeiligen Feld eine neue Zeile */
+.grid > .field-wide + :is(.check, .inline) {
+  margin-top: 0;
+}
+
+/* Zeilen mit beschrifteten Feldern: alles auf die Eingabefelder ausrichten, nicht auf die Labels. */
+.row:has(> .field),
+.toolbar:has(> .field) {
+  align-items: flex-start;
+}
+.row:has(> .field) > :not(.field),
+.toolbar:has(> .field) > :not(.field):not(.legend) {
+  margin-top: var(--label-offset);
+}
+.row:has(> .field) > :is(.check, span, .info),
+.toolbar:has(> .field) > :is(.check, span, .info) {
+  min-height: var(--ctl-h);
+  display: inline-flex;
+  align-items: center;
+}
+.row > .check,
+.toolbar > .check {
+  min-height: var(--ctl-h);
+}
+
+/* Filterleisten: Legende als eigene Zeile darunter, linksbündig. */
+.toolbar.filters > .legend {
+  flex-basis: 100%;
+  justify-content: flex-start;
+  margin-top: 0;
+}
+
+/* Kartentitel: gleiche Höhe mit und ohne Bedienelemente; Bedienelemente rechtsbündig. */
+.card-title {
+  min-height: calc(var(--ctl-h-sm) + var(--sp-2));
+}
+.card-title > span {
+  flex: 1;
+  min-width: 0;
+}
+.card-title :is(input:not([type="checkbox"]), select) {
+  height: var(--ctl-h-sm);
+  min-height: var(--ctl-h-sm);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+}
+.card-title .btn {
+  min-height: var(--ctl-h-sm);
+  padding: 0 10px;
+  font-size: var(--fs-sm);
+}
+.card-title .btn-icon {
+  min-width: var(--ctl-h-sm);
+  padding: 0;
+}
+.card-title
+  > span
+  > :is(input, select, .btn, .inline, .row, .seg):not(:is(input, select, .btn, .inline, .row, .seg) ~ *) {
+  margin-left: auto;
+}
+/* Beschriftete Felder im Kartentitel: Label links neben dem Feld statt darüber. */
+.card-title .field {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.card-title > .field,
+.card-title > span > .field:not(.field ~ .field) {
+  margin-left: auto;
+}
+.card-title .field select {
+  width: auto;
+  min-width: 180px;
+  max-width: 260px;
+}
+.card-title > span > input:not([type="checkbox"]) {
+  width: min(240px, 40%);
+}
+
+/* Container ohne eigene Klasse in Karten: einheitlicher vertikaler Abstand zwischen Blöcken. */
+.card > div:not([class]) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+.card > div:not([class]):empty {
+  display: none;
+}
+
+/* Aktionsspalte breiter Tabellen bleibt beim horizontalen Scrollen sichtbar. */
+.table-wrap .tbl td:last-child:has(.btn) {
+  position: sticky;
+  right: 0;
+  background: var(--surface);
+  box-shadow: -10px 0 8px -10px rgba(0, 0, 0, 0.35);
+}
+.table-wrap .tbl td:last-child:has(.btn) .inline {
+  flex-wrap: nowrap;
+}
+.tbl td > input[type="checkbox"] {
+  vertical-align: middle;
+}
+
+/* Tabellen: kompakte Bedienelemente, ohne leere Code-Kästchen. */
+.tbl td .btn {
+  min-height: var(--ctl-h-sm);
+  padding: 0 10px;
+}
+.tbl td :is(input:not([type="checkbox"]), select) {
+  height: var(--ctl-h-sm);
+  min-height: var(--ctl-h-sm);
+}
+.tbl td .inline {
+  flex-wrap: wrap;
+}
+code:empty {
+  display: none;
+}
+
+/* Einheitliche Abstände zwischen Abschnitten innerhalb von Karten. */
+.card > .row + .row,
+.card > .grid + .row,
+.card > .row + .grid {
+  margin-top: 0;
+}
+.card > .field-hint,
+.card > p.muted {
+  margin: 0;
+}
+
+/* Kopfzeile: auf üblichen Notebook-Breiten einzeilig. */
+@media (min-width: 1100px) {
+  .app-header {
+    flex-wrap: nowrap;
+  }
+  .hdr-status {
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+  .hdr-status .pill {
+    max-width: 280px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .hdr-ecu,
+  .hdr-ecu-state,
+  .hdr-tools {
+    flex-wrap: nowrap;
+  }
+  .hdr-ecu .ecu-select {
+    max-width: 210px;
+  }
+}
+@media (max-width: 1499px) {
+  .hdr-search-wrap kbd {
+    display: none;
+  }
+  .hdr-search {
+    width: 170px;
   }
 }

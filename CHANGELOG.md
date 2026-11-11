@@ -35,6 +35,11 @@ All notable changes to this project are documented here. The format follows
   missing PCAN-Basic library, socketcan interface down).
 
 ### Changed
+- UI consistency: inputs, selects and buttons share one height; fields in grids align regardless of
+  hint texts; buttons and checkboxes next to labelled fields line up with the inputs; card-title
+  actions are right-aligned with compact controls; table cells are vertically centred and the action
+  column stays visible when wide tables scroll; secondary (ghost) buttons are recognisable as
+  actions; styled file pickers; the header fits on one line on common notebook widths.
 - The built browser UI (`backend/udsbench/static/`) is now committed, so udsbench can be installed
   and built (`pip install .`, wheel, PyInstaller) without Node.js/npm. CI verifies that the
   committed build matches the frontend sources.
