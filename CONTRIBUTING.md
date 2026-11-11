@@ -26,6 +26,11 @@ ruff check backend && ruff format --check backend && mypy && pytest
 cd frontend && npm run lint && npm run format:check && npm test && npm run build
 ```
 
+* **Gebautes Frontend mit committen:** `backend/udsbench/static/` ist versioniert, damit udsbench
+  ohne Node.js/npm installiert und gebaut werden kann. Wer `frontend/` ändert, committet das
+  Ergebnis von `npm run build` im selben Commit. Die CI baut neu und schlägt fehl, wenn der
+  eingecheckte Stand abweicht.
+
 * Neue Protokollfunktionen brauchen Tests – bei Transport/Timing in der Konformitäts-Suite
   (`@pytest.mark.conformance`), Ende-zu-Ende gegen das ECU-Testdouble.
 * UI-Texte zentral in `frontend/src/i18n/` (Deutsch ist Standard).

@@ -15,7 +15,7 @@ htmlcov/
 # Frontend
 node_modules/
 frontend/dist/
-backend/udsbench/static/
+# backend/udsbench/static/ ist versioniert: gebautes Frontend, damit Installation ohne Node.js/npm geht
 
 # Lokale Konfiguration / Laufzeitdaten
 config/app.yaml

@@ -63,11 +63,16 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - name: Eingechecktes Frontend-Build ist aktuell
         if: matrix.os == 'ubuntu-latest'
-        with:
-          name: frontend-dist
-          path: backend/udsbench/static
+        shell: bash
+        run: |
+          changes="$(git status --porcelain --untracked-files=all -- ../backend/udsbench/static)"
+          if [ -n "$changes" ]; then
+            echo "::error::backend/udsbench/static/ passt nicht zu frontend/. Bitte 'cd frontend && npm run build' ausführen und das Ergebnis committen."
+            echo "$changes"
+            exit 1
+          fi
 
   e2e:
     name: API-Automatisierung (End-to-End)
@@ -78,10 +83,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: backend/udsbench/static
+      # bewusst ohne Node.js/npm: das eingecheckte Frontend muss genügen
       - run: pip install .
       - name: Server starten und Suite über die API ausführen
         run: |
@@ -107,10 +109,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - uses: actions/download-artifact@v4
-        with:
-          name: frontend-dist
-          path: backend/udsbench/static
       - run: pip install build ".[build]"
       - run: python -m build --wheel
       - run: pyinstaller --noconfirm packaging/udsbench.spec

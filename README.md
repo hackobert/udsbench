@@ -33,14 +33,14 @@ Konfigurationsdateien, nicht im Code.
 
 ## Schnellstart
 
-Voraussetzungen: Python 3.11 oder neuer, Node.js 20 oder neuer (nur zum Bauen der Oberfläche).
+Voraussetzung: Python 3.11 oder neuer. Node.js und npm werden **nicht** benötigt – die gebaute
+Oberfläche liegt im Repository.
 
 ```bash
 git clone https://github.com/hackobert/udsbench.git && cd udsbench
 python -m venv .venv
 source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install .
-(cd frontend && npm ci && npm run build)
 udsbench run --demo --open
 ```
 
@@ -89,8 +89,10 @@ Die Oberfläche folgt der Systemeinstellung für hell und dunkel ([Beispiel](doc
 | **Windows** | `py -3.12 -m venv .venv && .venv\Scripts\activate && pip install .` – Treiber des CAN-Adapters laut python-can-Doku installieren |
 | **macOS** | `python3 -m venv .venv && source .venv/bin/activate && pip install .` |
 
-Die Oberfläche wird einmalig mit `cd frontend && npm ci && npm run build` gebaut und landet in
-`backend/udsbench/static/`. Danach genügt ein Prozess: `udsbench run`.
+Die gebaute Oberfläche ist in `backend/udsbench/static/` eingecheckt und wird von `pip install .`
+mitinstalliert – für Installation, Wheel und Ein-Datei-Build ist kein Node.js/npm nötig. Es genügt
+ein Prozess: `udsbench run`. Nur wer die Oberfläche selbst ändert, braucht Node.js 20+ (siehe
+[Entwicklung](#entwicklung)).
 
 * **Konfiguration:** `udsbench init` legt `config/app.yaml` an (Vorlage: [config/app.example.yaml](config/app.example.yaml)).
 * **Ein-Datei-Build (optional):** `pip install ".[build]" && pyinstaller packaging/udsbench.spec`.
@@ -191,6 +193,10 @@ cd frontend && npm ci && npm run lint && npm test && npm run build
 cd frontend && npm run dev               # Entwicklungsserver mit Proxy auf Port 8765
 ```
 
+Nach Änderungen in `frontend/` den Build (`npm run build`) mit committen: Der Inhalt von
+`backend/udsbench/static/` ist versioniert, damit sich udsbench ohne Node.js bauen lässt. Die CI
+prüft, dass er zum Quellcode passt.
+
 Beiträge sind willkommen – bitte [CONTRIBUTING.md](CONTRIBUTING.md) lesen. Grundregel: keine
 hersteller- oder gerätespezifischen Daten im Code. Sicherheitsprobleme bitte privat melden:
 [SECURITY.md](SECURITY.md). Änderungen: [CHANGELOG.md](CHANGELOG.md).
@@ -219,7 +225,8 @@ data (CAN IDs, addressing, padding, DIDs, DTCs, routines, sessions, security pro
 tests) lives in YAML/JSON configuration packages; a built-in AI prompt turns an ECU specification into
 such a package.
 
-Quick start: `pip install . && (cd frontend && npm ci && npm run build) && udsbench run --demo --open`.
+Quick start: `pip install . && udsbench run --demo --open` – no Node.js/npm required; the built UI is
+committed in `backend/udsbench/static/`.
 
 The user interface and documentation are currently in German. The project was **entirely generated
 by AI** ([AI_DISCLOSURE.md](AI_DISCLOSURE.md)), is covered by an automated conformance test suite, and

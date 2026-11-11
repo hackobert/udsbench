@@ -1,6 +1,6 @@
 # PyInstaller-Spezifikation für einen Ein-Datei-Build je Plattform.
-#   cd frontend && npm ci && npm run build && cd ..
 #   pip install .[build] && pyinstaller packaging/udsbench.spec
+# Das gebaute Frontend (backend/udsbench/static/) ist eingecheckt, Node.js/npm wird nicht benötigt.
 # Ergebnis: dist/udsbench(.exe) – Start ohne Argumente öffnet die UI im Browser.
 from pathlib import Path
 

@@ -31,7 +31,9 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 _FALLBACK_HTML = """<!doctype html><html lang="de"><meta charset="utf-8"><title>udsbench</title>
 <body style="font-family:system-ui;max-width:720px;margin:3rem auto;line-height:1.5">
-<h1>udsbench</h1><p>Der Server läuft, aber das Frontend wurde noch nicht gebaut.</p>
+<h1>udsbench</h1><p>Der Server läuft, aber das Frontend fehlt in dieser Installation.</p>
+<p>Das gebaute Frontend liegt im Repository unter <code>backend/udsbench/static/</code>. Installieren
+Sie udsbench aus einem vollständigen Checkout neu (<code>pip install .</code>) oder bauen Sie es selbst:</p>
 <pre>cd frontend &amp;&amp; npm ci &amp;&amp; npm run build</pre>
 <p>API-Dokumentation: <a href="/docs">/docs</a> (OpenAPI: <a href="/openapi.json">/openapi.json</a>)</p></body></html>"""
 

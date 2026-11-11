@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- The built browser UI (`backend/udsbench/static/`) is now committed, so udsbench can be installed
+  and built (`pip install .`, wheel, PyInstaller) without Node.js/npm. CI verifies that the
+  committed build matches the frontend sources.
+
 ## [0.1.0] – 2026-11-10
 
 First public preview.

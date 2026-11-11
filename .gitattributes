@@ -1,0 +1,2 @@
+# Gebautes Frontend: unverändert auschecken (keine Zeilenende-Konvertierung), in Diffs/Statistiken als generiert markieren
+backend/udsbench/static/** -text -diff linguist-generated=true

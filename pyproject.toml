@@ -49,7 +49,7 @@ udsbench = "udsbench.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["backend/udsbench"]
-# gebautes Frontend (git-ignoriert) trotzdem ins Wheel aufnehmen
+# gebautes, eingechecktes Frontend explizit ins Wheel aufnehmen (Installation ohne Node.js/npm)
 artifacts = ["backend/udsbench/static/**"]
 
 [tool.hatch.build.targets.wheel.force-include]
